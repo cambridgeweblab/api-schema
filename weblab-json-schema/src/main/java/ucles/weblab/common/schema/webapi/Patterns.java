@@ -15,6 +15,8 @@ public class Patterns {
     public static final String IBAN_PATTERN = "^[A-Z]{2}[0-9]{2}(?: ?[0-9A-Z]{4}){2,6}? ?[0-9A-Z]{0,4}$";
     public static final String TIME_PATTERN = "^([01][0-9]|2[0-3]):[0-5][0-9]$";
     public static final String GENDER_PATTERN = "^[MF]$";
+    public static final String GENDER_PATTERN_WITH_N = "^[MFN]$";
+
     /** Validates that a password includes letters, digits and other characters, and is at least 8 characters long. */
     public static final String PASSWORD_PATTERN = "^(?=.*\\W)(?=.*\\d)(?=.*[a-zA-Z]).{8,}$";
 
