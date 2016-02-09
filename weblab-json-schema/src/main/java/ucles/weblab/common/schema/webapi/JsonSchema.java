@@ -17,22 +17,16 @@ import java.lang.annotation.Target;
 public @interface JsonSchema {
     /**
      * This property defines the type of data, content type, or microformat to
-     * be expected in the instance property values.
-     * Not actually an array, but there's no other way of having a default-empty enum.
+     * be expected in the instance property values. Use values from {@link JsonValueFormat}, {@link MoreFormats}
+     * or any other custom value.
      */
-    JsonValueFormat[] format() default {};
+    String format() default "";
 
     /**
      * This property states that the value is read only. A client should not attempt
      * to modify this data before resubmission.
      */
     boolean readOnly() default false;
-
-    /**
-     * Use this property instead of {@link #format() format} if you need to specify
-     * a custom format name.
-     */
-    String customFormat() default "";
 
     /**
      * Defines a fixed set of constant enum values for this property.

@@ -128,7 +128,7 @@ public class SuperSchemaFactoryWrapper extends SchemaFactoryWrapper {
 
         private void processValidationConstraints(BeanProperty prop) {
             JsonSchema existingSchema = this.getPropertySchema(prop);
-            JsonSchema updatedSchema = addValidationConstraints(existingSchema, prop, this.getProvider());
+            JsonSchema updatedSchema = addValidationConstraints(existingSchema, prop);
             if (updatedSchema != existingSchema) {
                 this.setPropertySchema(prop, updatedSchema);
             }
@@ -165,7 +165,7 @@ public class SuperSchemaFactoryWrapper extends SchemaFactoryWrapper {
         return super.expectArrayFormat(convertedType);
     }
 
-    private JsonSchema addValidationConstraints(JsonSchema schema, BeanProperty prop, SerializerProvider provider) {
+    private JsonSchema addValidationConstraints(JsonSchema schema, BeanProperty prop) {
         if(schema.isArraySchema()) {
             ArraySchema arraySchema = schema.asArraySchema();
             arraySchema.setMaxItems(constraintResolver.getArrayMaxItems(prop));
@@ -173,7 +173,7 @@ public class SuperSchemaFactoryWrapper extends SchemaFactoryWrapper {
             if (arraySchema.getItems().isSingleItems() && arraySchema.getItems().asSingleItems().getSchema().isValueTypeSchema()) {
                 ValueTypeSchema itemSchema = arraySchema.getItems().asSingleItems().getSchema().asValueSchemaSchema();
 
-                additionalConstraintResolver.getValueFormat(prop, provider).ifPresent(itemSchema::setFormat);
+                additionalConstraintResolver.getValueFormat(prop).ifPresent(itemSchema::setFormat);
                 addEnumConstraints(itemSchema, prop);
             }
         } else if(schema.isNumberSchema()) {
@@ -194,7 +194,7 @@ public class SuperSchemaFactoryWrapper extends SchemaFactoryWrapper {
 
         if (schema.isValueTypeSchema()) {
             ValueTypeSchema valueTypeSchema = schema.asValueSchemaSchema();
-            additionalConstraintResolver.getValueFormat(prop, provider).ifPresent(valueTypeSchema::setFormat);
+            additionalConstraintResolver.getValueFormat(prop).ifPresent(valueTypeSchema::setFormat);
             addEnumConstraints(valueTypeSchema, prop);
         }
 

@@ -30,7 +30,6 @@ import javax.validation.constraints.NotNull;
  */
 class AdditionalConstraintResolver {
     private Logger log = LoggerFactory.getLogger(getClass());
-    private final JsonValueFormatHelper jsonValueFormatHelper = new JsonValueFormatHelper();
 
     public Optional<Boolean> getNumberExclusiveMinimum(BeanProperty prop) {
         DecimalMin decimalMinAnnotation = prop.getAnnotation(DecimalMin.class);
@@ -42,14 +41,12 @@ class AdditionalConstraintResolver {
         return Optional.ofNullable(decimalMaxAnnotation).map(an -> !an.inclusive());
     }
 
-    public Optional<JsonValueFormat> getValueFormat(final BeanProperty prop, SerializerProvider provider) {
+    public Optional<JsonValueFormat> getValueFormat(final BeanProperty prop) {
         JsonSchema jsonSchemaAnnotation = prop.getAnnotation(JsonSchema.class);
         return Optional.ofNullable(jsonSchemaAnnotation)
                 .map(an -> {
-                    if (!an.customFormat().isEmpty()) {
-                        return jsonValueFormatHelper.getCustomJsonValueFormat(prop, provider, an.customFormat());
-                    } else if (an.format().length > 0) {
-                        return jsonValueFormatHelper.getStandardJsonValueFormat(prop, provider, an.format()[0]);
+                    if (!an.format().isEmpty()) {
+                        return JsonValueFormat.valueOf(an.format());
                     } else {
                         return null;
                     }
