@@ -100,7 +100,7 @@ public class SuperSchemaFactoryWrapperTest {
 
         com.fasterxml.jackson.module.jsonSchema.JsonSchema superSchema = baseSchema.getExtends()[0];
         assertTrue("Expect super-schema to be a string schema", superSchema.isStringSchema());
-        assertEquals("Expect super-schema to have our enums", enumSchema.getEnums(), superSchema.asValueSchemaSchema().getEnums());
+        assertEquals("Expect super-schema to have our enums", enumSchema.getEnums(), superSchema.asValueTypeSchema().getEnums());
     }
 
     @Test

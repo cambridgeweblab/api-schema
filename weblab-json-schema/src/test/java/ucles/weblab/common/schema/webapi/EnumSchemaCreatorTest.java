@@ -44,7 +44,7 @@ public class EnumSchemaCreatorTest {
     public void givenNoNameFnOrDescriptionFnProvided_whenIntegerSchemaCreated_thenSimpleEnumSchemaCreated() {
         JsonSchema result = enumSchemaCreator.createEnum(IntStream.of(15, 30, 45, 60).boxed(), Object::toString, Optional.empty(), Optional.empty(), schemaFactory::integerSchema);
         assertEquals("Expect integer schema", JsonFormatTypes.INTEGER, result.getType());
-        ValueTypeSchema valueTypeSchema = result.asValueSchemaSchema();
+        ValueTypeSchema valueTypeSchema = result.asValueTypeSchema();
         assertThat("Expect enum values", valueTypeSchema.getEnums(), Matchers.contains("15", "30", "45", "60"));
     }
 
@@ -81,7 +81,7 @@ public class EnumSchemaCreatorTest {
         }};
         JsonSchema result = enumSchemaCreator.createEnum(enumValues, schemaFactory::stringSchema);
         assertEquals("Expect string schema", JsonFormatTypes.STRING, result.getType());
-        ValueTypeSchema valueTypeSchema = result.asValueSchemaSchema();
+        ValueTypeSchema valueTypeSchema = result.asValueTypeSchema();
         assertThat("Expect enum values", valueTypeSchema.getEnums(), Matchers.contains(enumValues.keySet().toArray()));
     }
 

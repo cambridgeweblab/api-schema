@@ -1,7 +1,6 @@
 package ucles.weblab.common.schema.webapi;
 
 import com.fasterxml.jackson.databind.BeanProperty;
-import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonValueFormat;
 import com.fasterxml.jackson.module.jsonSchema.validation.ValidationConstraintResolver;
 import org.slf4j.Logger;

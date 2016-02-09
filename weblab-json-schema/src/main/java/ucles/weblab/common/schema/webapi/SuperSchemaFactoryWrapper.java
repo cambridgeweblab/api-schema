@@ -171,7 +171,7 @@ public class SuperSchemaFactoryWrapper extends SchemaFactoryWrapper {
             arraySchema.setMaxItems(constraintResolver.getArrayMaxItems(prop));
             arraySchema.setMinItems(constraintResolver.getArrayMinItems(prop));
             if (arraySchema.getItems().isSingleItems() && arraySchema.getItems().asSingleItems().getSchema().isValueTypeSchema()) {
-                ValueTypeSchema itemSchema = arraySchema.getItems().asSingleItems().getSchema().asValueSchemaSchema();
+                ValueTypeSchema itemSchema = arraySchema.getItems().asSingleItems().getSchema().asValueTypeSchema();
 
                 additionalConstraintResolver.getValueFormat(prop).ifPresent(itemSchema::setFormat);
                 addEnumConstraints(itemSchema, prop);
@@ -193,7 +193,7 @@ public class SuperSchemaFactoryWrapper extends SchemaFactoryWrapper {
         }
 
         if (schema.isValueTypeSchema()) {
-            ValueTypeSchema valueTypeSchema = schema.asValueSchemaSchema();
+            ValueTypeSchema valueTypeSchema = schema.asValueTypeSchema();
             additionalConstraintResolver.getValueFormat(prop).ifPresent(valueTypeSchema::setFormat);
             addEnumConstraints(valueTypeSchema, prop);
         }

@@ -56,7 +56,7 @@ public class EnumSchemaCreator {
                     }).toArray(ValueTypeSchema[]::new));
         } else {
             jsonSchema = valueSchemaSupplier.get();
-            jsonSchema.asValueSchemaSchema().setEnums(sourceStream
+            jsonSchema.asValueTypeSchema().setEnums(sourceStream
                     .map(valueFn::apply)
                     .collect(Collectors.toCollection(LinkedHashSet::new)));
         }
@@ -83,7 +83,7 @@ public class EnumSchemaCreator {
             return createEnum(enumValues.entrySet().stream(), valueFn, nameFn, Optional.empty(), valueSchemaSupplier);
         } else {
             enumSchema = valueSchemaSupplier.get();
-            enumSchema.asValueSchemaSchema().setEnums(enumValues.keySet());
+            enumSchema.asValueTypeSchema().setEnums(enumValues.keySet());
         }
         return enumSchema;
     }
