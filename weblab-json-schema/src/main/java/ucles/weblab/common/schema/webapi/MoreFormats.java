@@ -23,6 +23,12 @@ public class MoreFormats {
    	 * A date in ISO 8601 format of YYYY-MM-DDThh:mm:ss (no timezone).  This is the recommended form of date/timestamp.
    	 */
     public static final String LOCAL_DATE_TIME = "local-date-time";
+
+    /**
+     * A date in ISO 8601 format of YYYY-MM-DDThh:mm:ss (no timezone).
+     */
+    public static final String BIRTH_DATE_TIME = "birth-date";
+
     /**
      * An ISO 3166-1 alpha-2 country code. A UI would probably present this as a list of known countries.
      */
