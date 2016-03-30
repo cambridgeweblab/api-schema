@@ -1,5 +1,7 @@
 package ucles.weblab.common.identity.domain;
 
+import ucles.weblab.common.xc.domain.CrossContextLink;
+
 /**
  * Although parties are their own domain, we have a need to obtain a party 'key' across the whole system in order
  * to form URLs and check authentication credentials. Party users of different types will need to implement this
@@ -10,9 +12,9 @@ package ucles.weblab.common.identity.domain;
  */
 public interface Belongs {
     String getOwnerHandle();
-    /* These properties were in the ExamPay version, but don't make sense in this.
+    /* These properties were in the ExamPay version, but don't make sense in this. */
     CrossContextLink getOrganisation();
 
     String getEmailAddress();
-    */
+    
 }
