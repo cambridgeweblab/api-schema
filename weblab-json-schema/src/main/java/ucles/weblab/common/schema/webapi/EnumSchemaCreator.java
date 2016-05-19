@@ -1,5 +1,6 @@
 package ucles.weblab.common.schema.webapi;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -7,17 +8,16 @@ import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatTypes;
 import com.fasterxml.jackson.module.jsonSchema.JsonSchema;
 import com.fasterxml.jackson.module.jsonSchema.JsonSchemaIdResolver;
 import com.fasterxml.jackson.module.jsonSchema.factories.JsonSchemaFactory;
+import com.fasterxml.jackson.module.jsonSchema.types.SimpleTypeSchema;
 import com.fasterxml.jackson.module.jsonSchema.types.UnionTypeSchema;
 import com.fasterxml.jackson.module.jsonSchema.types.ValueTypeSchema;
 
-import java.util.Collections;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static java.util.stream.Collectors.toCollection;
 
 /**
  * Creates a (draft-3) JSON Schema (http://tools.ietf.org/html/draft-zyp-json-schema-03")
@@ -58,7 +58,7 @@ public class EnumSchemaCreator {
             jsonSchema = valueSchemaSupplier.get();
             jsonSchema.asValueTypeSchema().setEnums(sourceStream
                     .map(valueFn::apply)
-                    .collect(Collectors.toCollection(LinkedHashSet::new)));
+                    .collect(toCollection(LinkedHashSet::new)));
         }
 
         return jsonSchema;
@@ -93,21 +93,75 @@ public class EnumSchemaCreator {
      * It returns a basic type in the 'type' property, and it returns the union in an 'elements' array.
      * The 'type' property should be the array directly.
      * This implementation isn't broken.
+     * It also allows you to use any {@link com.fasterxml.jackson.module.jsonSchema.types.SimpleTypeSchema} rather than just value types.
      * TODO: If you include one of these in an 'extends' array, then {@link JsonSchemaIdResolver#idFromValue(java.lang.Object)} kicks in and screws everything up.
+     * TODO: Merge these changes back into Jackson proper
      */
     @JsonIgnoreProperties("elements")
     @JsonTypeInfo(use = JsonTypeInfo.Id.NONE, property = "type")
     public static class NonBrokenUnionTypeSchema extends UnionTypeSchema {
+        @JsonProperty("type")
+        List<SimpleTypeSchema> anyOf = new LinkedList<>();
+
         @Override
         public JsonFormatTypes getType() {
             // Will be replaced during serialization anyway.
             return JsonFormatTypes.ANY;
         }
 
+        @JsonIgnore
+        public List<SimpleTypeSchema> getTypes() {
+            return Collections.unmodifiableList(anyOf);
+        }
+
+        @JsonIgnore
+        public SimpleTypeSchema[] getTypesArray() {
+            return anyOf.toArray(new SimpleTypeSchema[anyOf.size()]);
+        }
+
+        public void setTypes(SimpleTypeSchema... anyOf) {
+            assert anyOf.length >= 2: "Union Type Schemas must contain two or more Simple Type Schemas";
+            this.anyOf = Arrays.stream(anyOf).collect(toCollection(LinkedList::new));
+        }
+
+        public void addTypes(Stream<SimpleTypeSchema> stream) {
+            stream.forEach(anyOf::add);
+        }
+
+        /**
+         * @deprecated use {@link #getTypes()} instead.
+         */
+        @Deprecated
         @Override
-        @JsonProperty("type")
+        @JsonIgnore
         public ValueTypeSchema[] getElements() {
-            return super.getElements();
+            return null;
+        }
+
+        /**
+         * @deprecated use {@link #setTypes(SimpleTypeSchema...)} instead.
+         */
+        @Deprecated
+        @Override
+        @JsonIgnore
+        public void setElements(ValueTypeSchema[] elements) {
+            super.setElements(elements);
+        }
+
+        @Override
+        protected boolean _equals(UnionTypeSchema that) {
+            if (that instanceof NonBrokenUnionTypeSchema) {
+                return arraysEqual(this.getTypesArray(), ((NonBrokenUnionTypeSchema) that).getTypesArray()) &&
+                        equals(this.getId(), this.getId()) &&
+                        equals(this.getRequired(), that.getRequired()) &&
+                        equals(this.getReadonly(), that.getReadonly()) &&
+                        equals(this.get$ref(), that.get$ref()) &&
+                        equals(this.get$schema(), that.get$schema()) &&
+                        arraysEqual(this.getDisallow(), that.getDisallow()) &&
+                        arraysEqual(this.getExtends(), that.getExtends());
+            } else {
+                return arraysEqual(this.getTypesArray(), that.getElements()) && super._equals(that);
+            }
         }
     }
 }
