@@ -20,6 +20,9 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
+import static ucles.weblab.common.webapi.LinkRelation.CREATE;
+import static ucles.weblab.common.webapi.LinkRelation.INSTANCES;
+
 /**
  * Creates a (draft-3) JSON Schema (http://tools.ietf.org/html/draft-zyp-json-schema-03")
  * for a given resource class.
@@ -123,7 +126,7 @@ public class ResourceSchemaCreator {
         if (!instances.isPresent()) {
             instances = listControllerMethod
                     .flatMap(this::linkIfPermittedTo)
-                    .map(l -> new LinkDescriptionObject().setHref(l.toString()).setRel("instances").setMethod(HttpMethod.GET.toString()));
+                    .map(l -> new LinkDescriptionObject().setHref(l.toString()).setRel(INSTANCES.rel()).setMethod(HttpMethod.GET.toString()));
         }
 
         Optional<LinkDescriptionObject> create = createControllerMethod
@@ -131,7 +134,7 @@ public class ResourceSchemaCreator {
         if (!create.isPresent()) {
             create = createControllerMethod
                     .flatMap(this::linkIfPermittedTo)
-                    .map(l -> new LinkDescriptionObject().setHref(l.toString()).setRel("create").setMethod(HttpMethod.POST.toString()));
+                    .map(l -> new LinkDescriptionObject().setHref(l.toString()).setRel(CREATE.rel()).setMethod(HttpMethod.POST.toString()));
         }
 
         LinkDescriptionObject[] linkDescriptionObjects = Arrays.asList(instances, create).stream()

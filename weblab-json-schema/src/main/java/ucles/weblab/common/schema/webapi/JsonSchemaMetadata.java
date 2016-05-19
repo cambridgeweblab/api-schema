@@ -11,7 +11,7 @@ import java.lang.annotation.Target;
  * @since 05/10/15
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.METHOD, ElementType.FIELD})
+@Target({ElementType.METHOD, ElementType.FIELD, ElementType.PARAMETER})
 @Documented
 public @interface JsonSchemaMetadata {
 

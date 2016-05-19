@@ -83,7 +83,7 @@ public class SuperSchemaFactoryWrapper extends SchemaFactoryWrapper {
         }
     }
 
-    private class ObjectVisitorDecorator extends com.fasterxml.jackson.module.jsonSchema.factories.ObjectVisitorDecorator {
+    class ObjectVisitorDecorator extends com.fasterxml.jackson.module.jsonSchema.factories.ObjectVisitorDecorator {
         public ObjectVisitorDecorator(final ObjectVisitor objectVisitor) {
             super(objectVisitor);
         }
@@ -114,7 +114,7 @@ public class SuperSchemaFactoryWrapper extends SchemaFactoryWrapper {
             processValidationConstraints(prop);
         }
 
-        private void fixupDateTimeSchema(BeanProperty writer) {
+        void fixupDateTimeSchema(BeanProperty writer) {
             if ((writer.getType().hasRawClass(LocalDateTime.class) ||
                     writer.getType().hasRawClass(LocalTime.class) ||
                     writer.getType().hasRawClass(LocalDate.class) ||
@@ -126,7 +126,7 @@ public class SuperSchemaFactoryWrapper extends SchemaFactoryWrapper {
             }
         }
 
-        private void processValidationConstraints(BeanProperty prop) {
+        void processValidationConstraints(BeanProperty prop) {
             JsonSchema existingSchema = this.getPropertySchema(prop);
             JsonSchema updatedSchema = addValidationConstraints(existingSchema, prop);
             if (updatedSchema != existingSchema) {
