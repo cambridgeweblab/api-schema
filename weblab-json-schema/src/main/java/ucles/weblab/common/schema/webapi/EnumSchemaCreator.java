@@ -2,9 +2,12 @@ package ucles.weblab.common.schema.webapi;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatTypes;
+import com.fasterxml.jackson.databind.jsonschema.JsonSerializableSchema;
 import com.fasterxml.jackson.module.jsonSchema.JsonSchema;
 import com.fasterxml.jackson.module.jsonSchema.JsonSchemaIdResolver;
 import com.fasterxml.jackson.module.jsonSchema.factories.JsonSchemaFactory;
@@ -130,22 +133,24 @@ public class EnumSchemaCreator {
 
         /**
          * @deprecated use {@link #getTypes()} instead.
+         * @throws ArrayStoreException if the types in this union are not all {@link ValueTypeSchema}.
          */
         @Deprecated
         @Override
         @JsonIgnore
         public ValueTypeSchema[] getElements() {
-            return null;
+            return anyOf.toArray(new ValueTypeSchema[anyOf.size()]);
         }
 
         /**
-         * @deprecated use {@link #setTypes(SimpleTypeSchema...)} instead.
+         * @deprecated use {@link #setTypes(SimpleTypeSchema[])} instead.
          */
         @Deprecated
         @Override
         @JsonIgnore
         public void setElements(ValueTypeSchema[] elements) {
             super.setElements(elements);
+            setTypes(elements);
         }
 
         @Override
