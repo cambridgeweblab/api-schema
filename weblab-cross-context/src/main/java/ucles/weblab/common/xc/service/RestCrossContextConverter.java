@@ -1,19 +1,16 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package ucles.weblab.common.xc.service;
 
 import java.net.URI;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.IntStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
-
+import org.springframework.boot.context.properties.ConfigurationProperties;
 /**
  *
  * @author Sukhraj
@@ -25,10 +22,21 @@ public class RestCrossContextConverter implements CrossContextConverter, Applica
     private final Map<String, URI> urnToUrls = new HashMap<>();
     private final Map<URI, String> urlToUrns = new HashMap<>();
 
-    //urn:xc:paymenttype:online:{centreNumber}:{id}
-    public RestCrossContextConverter() { 
-        urnToUrls.put("urn:xc:payment:purchaseorderno:{purchaseorderno}", URI.create("http://localhost:8080/api/payment/"));
-        urlToUrns.put(URI.create("http://localhost:8080/api/payment"), "urn:xc:payment:purchaseorderno:{purchaseorderno}");    
+    private final RestSettings restSettings;    
+    
+    public RestCrossContextConverter(RestSettings restSettings) { 
+    
+        this.restSettings = restSettings;
+        List<String> urns = restSettings.getUrns();
+        List<String> urls = restSettings.getUrls();
+        
+        //go through the urns and fill the maps
+        IntStream.range(0, urns.size()).forEach(index -> {
+            String url = urls.get(index);
+            String urn = urns.get(index);
+            urnToUrls.put(urn, URI.create(url));
+            urlToUrns.put(URI.create(url), urn);
+        });
     }
         
     @Override
@@ -39,7 +47,7 @@ public class RestCrossContextConverter implements CrossContextConverter, Applica
 
     @Override
     public URI toUrl(URI urn) {
-        URI res = urnToUrls.get(urn.getPath());
+        URI res = urnToUrls.get(urn.toString());
         return res;
     }
 
@@ -48,5 +56,4 @@ public class RestCrossContextConverter implements CrossContextConverter, Applica
         //do nothing for now
     }
 
-    
 }

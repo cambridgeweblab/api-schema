@@ -1,6 +1,7 @@
 package ucles.weblab.common.xc.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.net.URI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,10 +19,15 @@ public class RestCrossContextResolver implements CrossContextResolver {
 
     private final RestCrossContextConverter converter;
     private final RestTemplate restTemplate;
+    private final ObjectMapper objectMapper;
     
-    public RestCrossContextResolver(RestCrossContextConverter converter, RestTemplate restTemplate) {
+    public RestCrossContextResolver(RestCrossContextConverter converter, 
+                                    RestTemplate restTemplate, 
+                                    ObjectMapper objectMapper) {
+        
         this.converter = converter;
         this.restTemplate = restTemplate;
+        this.objectMapper = objectMapper;
     }
     
     @Override
