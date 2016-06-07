@@ -27,14 +27,20 @@ public class RestCrossContextResolver implements CrossContextResolver {
     @Override
     public JsonNode urnToJson(URI urn) {
         URI urlToCall = converter.toUrl(urn);
-        ResponseEntity<Object> result = restTemplate.exchange(urlToCall.getPath(), HttpMethod.POST, null, Object.class);
-        //return the jsonnode...
+        if (urlToCall != null) {
+            JsonNode node = objectMapper.convertValue(urlToCall, JsonNode.class);
+            return node;
+        }
         return null;
     }
 
     @Override
     public <T> T urnToValue(URI urn, Class<T> type) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        URI urlToCall = converter.toUrl(urn);
+        if (urlToCall != null) {
+            return objectMapper.convertValue(urlToCall, type);
+        }
+        return null;
     }
     
 }
