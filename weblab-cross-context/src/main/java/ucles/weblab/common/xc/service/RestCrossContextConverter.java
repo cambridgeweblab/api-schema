@@ -34,7 +34,7 @@ public class RestCrossContextConverter implements CrossContextConverter, Applica
     @Override
     public URI toUrn(URI url) {
         String res = urlToUrns.get(url);
-        return URI.create(res);
+        return res != null? URI.create(res) : null;
     }
 
     @Override
