@@ -4,6 +4,7 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.IntStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,13 +31,15 @@ public class RestCrossContextConverter implements CrossContextConverter, Applica
         List<String> urns = restSettings.getUrns();
         List<String> urls = restSettings.getUrls();
         
-        //go through the urns and fill the maps
-        IntStream.range(0, urns.size()).forEach(index -> {
-            String url = urls.get(index);
-            String urn = urns.get(index);
-            urnToUrls.put(urn, URI.create(url));
-            urlToUrns.put(URI.create(url), urn);
-        });
+        if (urns != null && !urns.isEmpty()) {
+            //go through the urns and fill the maps
+            IntStream.range(0, urns.size()).forEach(index -> {
+                String url = urls.get(index);
+                String urn = urns.get(index);
+                urnToUrls.put(urn, URI.create(url));
+                urlToUrns.put(URI.create(url), urn);
+            });
+        }
     }
         
     @Override
