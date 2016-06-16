@@ -1,5 +1,6 @@
 package ucles.weblab.common.xc.service;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,9 +15,9 @@ import org.springframework.context.annotation.Configuration;
 @ConfigurationProperties(prefix = "weblab.crosscontext")
 public class RestSettings {
          
-    private List<String> urns;
+    private List<String> urns = new ArrayList<>();
     
-    private List<String> urls;
+    private List<String> urls = new ArrayList<>();
 
     public List<String> getUrns() {
         return urns;
