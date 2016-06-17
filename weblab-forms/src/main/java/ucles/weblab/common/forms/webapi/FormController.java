@@ -22,20 +22,22 @@ import static ucles.weblab.common.webapi.HateoasUtils.locationHeader;
 @RequestMapping("/api/forms")
 public class FormController {
     
+    private final FormDelegate formDelegate;
+    
     @Autowired
-    public FormController() {
-        
+    public FormController(FormDelegate formDelegate) {
+        this.formDelegate = formDelegate;
     }
     
     @RequestMapping(value = "/", 
                     method = RequestMethod.POST, 
                     consumes = APPLICATION_JSON_VALUE, 
                     produces = APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<ResourceSupport> save(@RequestBody Object object) {
+    public ResponseEntity<FormResource> save(@RequestBody FormResource formResource) {
         
-        ResourceSupport rs = new ResourceSupport();
+        FormResource created = formDelegate.create(formResource);
         
-        return new ResponseEntity<>(rs, locationHeader(rs), HttpStatus.CREATED);
+        return new ResponseEntity<>(created, locationHeader(created), HttpStatus.CREATED);
     }
     
 }

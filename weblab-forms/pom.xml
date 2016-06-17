@@ -69,6 +69,11 @@
             <optional>true</optional>
         </dependency>
         <dependency>
+            <groupId>com.fasterxml.jackson.module</groupId>
+            <artifactId>jackson-module-jsonSchema</artifactId>
+        </dependency>
+        
+        <dependency>
             <groupId>net.rossillo.mvc.cache</groupId>
             <artifactId>spring-mvc-cache-control</artifactId>
             <!-- only used for annotations, so if we don't have it at runtime then it doesn't matter -->
