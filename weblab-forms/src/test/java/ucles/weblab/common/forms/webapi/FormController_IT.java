@@ -30,7 +30,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
+import ucles.weblab.common.forms.domain.FormFactory;
 import ucles.weblab.common.forms.domain.FormRepository;
+import ucles.weblab.common.forms.domain.mongo.FormFactoryMongo;
 import ucles.weblab.common.forms.domain.mongo.FormRepositoryMongo;
 import ucles.weblab.common.test.webapi.AbstractRestController_IT;
 
@@ -74,10 +76,16 @@ public class FormController_IT extends AbstractRestController_IT {
         }
         
         @Bean
-        FormDelegate formDelegate(FormRepository formRepository,
-                                    FormResourceAssembler formAssembler) {
+        FormFactory formFactory() {
+            return new FormFactoryMongo();
+        }
         
-            return new FormDelegate(formRepository, formAssembler);
+        @Bean
+        FormDelegate formDelegate(FormRepository formRepository,
+                                  FormResourceAssembler formAssembler,
+                                  FormFactory formFactory) {
+        
+            return new FormDelegate(formRepository, formAssembler, formFactory);
             
         }
         
@@ -105,7 +113,7 @@ public class FormController_IT extends AbstractRestController_IT {
         
         String jsonString = json(form);
         
-        ResultActions postResult = mockMvc.perform(post("/api/form/")
+        ResultActions postResult = mockMvc.perform(post("/api/forms/")
                 .contentType(APPLICATION_JSON_UTF8)
                 .content(jsonString))
                 .andExpect(status().isCreated())
