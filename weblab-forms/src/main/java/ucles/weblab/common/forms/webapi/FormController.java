@@ -1,14 +1,19 @@
 package ucles.weblab.common.forms.webapi;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.ResourceSupport;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+import ucles.weblab.common.webapi.resource.ResourceListWrapper;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
@@ -38,6 +43,18 @@ public class FormController {
         FormResource created = formDelegate.create(formResource);
         
         return new ResponseEntity<>(created, locationHeader(created), HttpStatus.CREATED);
+    }
+    
+    @RequestMapping(value = "/{applicationName}/{businessStream}/", 
+                    method = RequestMethod.GET,  
+                    produces = APPLICATION_JSON_UTF8_VALUE)
+    public ResourceListWrapper<FormResource> list(@Valid @PathVariable String applicationName,
+                                                  @Valid @PathVariable String businessStream) {
+        
+        List<FormResource> result = new ArrayList<>();
+        ResourceListWrapper<FormResource> list = ResourceListWrapper.wrap(result);
+        
+        return list;
     }
     
 }

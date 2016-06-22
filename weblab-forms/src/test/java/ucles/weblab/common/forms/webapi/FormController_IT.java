@@ -1,14 +1,23 @@
 package ucles.weblab.common.forms.webapi;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.module.jsonSchema.JsonSchema;
 import com.fasterxml.jackson.module.jsonSchema.factories.SchemaFactoryWrapper;
 import com.fasterxml.jackson.module.jsonSchema.types.ObjectSchema;
+import java.io.InputStream;
+import java.math.BigDecimal;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -121,6 +130,32 @@ public class FormController_IT extends AbstractRestController_IT {
                 .andExpect(jsonPath("$.name", is("my-new-form")));
     }
     
+    @Test
+    @Ignore
+    public void testSaveWithTestSchema() throws Exception {
+        final InputStream resource = getClass().getResourceAsStream("test-schema.json");
+
+        URL url = this.getClass().getResource("test-schema.json");
+        Path filePath = Paths.get(url.toURI());
+        String jsonSchemaText = new String(Files.readAllBytes(filePath), "UTF8"); 
+  
+        JsonNodeFactory nodeFactory = JsonNodeFactory.instance;
+        
+        ObjectNode node = nodeFactory.objectNode();
+        node.put("schema", jsonSchemaText);
+        node.put("name", "some-form-name");
+        node.put("applicationName", "my-app");
+        node.put("businessStream", "my-business");
+        
+        
+        ResultActions postResult = mockMvc.perform(post("/api/forms/")
+                .contentType(APPLICATION_JSON_UTF8)
+                .content(node.asText()))
+                .andExpect(status().isCreated())
+                .andExpect(content().contentType(APPLICATION_JSON_UTF8))
+                .andExpect(jsonPath("$.name", is("some-form-name")));
+    }
+     
     static class TestBean{
        private String property1;
        private double property2;
