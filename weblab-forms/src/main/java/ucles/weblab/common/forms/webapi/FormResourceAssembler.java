@@ -1,7 +1,11 @@
 
 package ucles.weblab.common.forms.webapi;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.logging.Level;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,9 +22,11 @@ public class FormResourceAssembler extends ResourceAssemblerSupport<FormEntity, 
            
     private static final Logger log = LoggerFactory.getLogger(FormResourceAssembler.class);
         
+    private ObjectMapper objectMapper;
     
-    public FormResourceAssembler() {
+    public FormResourceAssembler(ObjectMapper objectMapper) {
         super(FormController.class, FormResource.class);
+        this.objectMapper = objectMapper;
     }
 
        
@@ -33,10 +39,17 @@ public class FormResourceAssembler extends ResourceAssemblerSupport<FormEntity, 
     @Override
     protected FormResource instantiateResource(FormEntity entity) {
                                
+        JsonNode schemaAsNode = null;
+        try {
+            schemaAsNode = objectMapper.readTree(entity.getSchema());
+        } catch (IOException ex) {
+            log.error("Exception converting to jsonode", ex);
+        }
+        
         FormResource resource = new FormResource(entity.getName(), 
                                                 entity.getApplicationName(), 
                                                 entity.getBusinessStream(), 
-                                                entity.getSchema());       
+                                                schemaAsNode);       
         return resource;
     }    
     

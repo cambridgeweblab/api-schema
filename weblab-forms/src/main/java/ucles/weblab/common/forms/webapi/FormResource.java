@@ -14,14 +14,14 @@ public class FormResource extends ResourceSupport {
     private String name;
     private String applicationName;
     private String businessStream;
-    private JsonSchema schema;
+    private JsonNode schema;
     
     /*For hibernate and jackson instantiation*/
     protected FormResource() {
         
     }
     
-    public FormResource(String name, String applicationName, String businessStream, JsonSchema schema) {
+    public FormResource(String name, String applicationName, String businessStream, JsonNode schema) {
         this.name = name;
         this.applicationName = applicationName;
         this.businessStream = businessStream;
@@ -40,7 +40,7 @@ public class FormResource extends ResourceSupport {
         return businessStream;
     }
 
-    public JsonSchema getSchema() {
+    public JsonNode getSchema() {
         return schema;
     }
 

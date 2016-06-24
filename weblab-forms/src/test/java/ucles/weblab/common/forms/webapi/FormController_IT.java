@@ -79,9 +79,11 @@ public class FormController_IT extends AbstractRestController_IT {
     @EnableAutoConfiguration
     public static class Config {
         
+        
+        
         @Bean
         FormResourceAssembler formResourceAssembler() {
-            return new FormResourceAssembler();
+            return new FormResourceAssembler(new ObjectMapper());
         }
         
         @Bean
@@ -94,7 +96,7 @@ public class FormController_IT extends AbstractRestController_IT {
                                   FormResourceAssembler formAssembler,
                                   FormFactory formFactory) {
         
-            return new FormDelegate(formRepository, formAssembler, formFactory);
+            return new FormDelegate(formRepository, formAssembler, formFactory, new ObjectMapper());
             
         }
         
@@ -114,74 +116,21 @@ public class FormController_IT extends AbstractRestController_IT {
     
     @Test
     public void testSave() throws Exception {
-        SchemaFactoryWrapper wrapper = new SchemaFactoryWrapper();
-        objectMapper.acceptJsonFormatVisitor(objectMapper.constructType(TestBean.class), wrapper);
-        JsonSchema finalSchema = wrapper.finalSchema();
-                
-        FormResource form = new FormResource("my-new-form", "test-webapp", "ca-business-stream", finalSchema);
+       
+        ObjectMapper mapper = new ObjectMapper();
+        final InputStream resource = getClass().getResourceAsStream("test-schema.json");
+        JsonNode node = mapper.readTree(resource);
+        
+        FormResource form = new FormResource("my-test-form", "test-webapp", "ca-business-stream", node);
         
         String jsonString = json(form);
-        
+        System.out.println("JSON data to POST: " + jsonString);
+                
         ResultActions postResult = mockMvc.perform(post("/api/forms/")
                 .contentType(APPLICATION_JSON_UTF8)
                 .content(jsonString))
                 .andExpect(status().isCreated())
                 .andExpect(content().contentType(APPLICATION_JSON_UTF8))
-                .andExpect(jsonPath("$.name", is("my-new-form")));
-    }
-    
-    @Test
-    @Ignore
-    public void testSaveWithTestSchema() throws Exception {
-        final InputStream resource = getClass().getResourceAsStream("test-schema.json");
-
-        URL url = this.getClass().getResource("test-schema.json");
-        Path filePath = Paths.get(url.toURI());
-        String jsonSchemaText = new String(Files.readAllBytes(filePath), "UTF8"); 
-  
-        JsonNodeFactory nodeFactory = JsonNodeFactory.instance;
-        
-        ObjectNode node = nodeFactory.objectNode();
-        node.put("schema", jsonSchemaText);
-        node.put("name", "some-form-name");
-        node.put("applicationName", "my-app");
-        node.put("businessStream", "my-business");
-        
-        
-        ResultActions postResult = mockMvc.perform(post("/api/forms/")
-                .contentType(APPLICATION_JSON_UTF8)
-                .content(node.asText()))
-                .andExpect(status().isCreated())
-                .andExpect(content().contentType(APPLICATION_JSON_UTF8))
-                .andExpect(jsonPath("$.name", is("some-form-name")));
-    }
-     
-    static class TestBean{
-       private String property1;
-       private double property2;
-       private String[] property3;
-       
-       protected TestBean() {
-           
-       }
-       
-       public TestBean(String prop1, double prop2, String[] prop3) {
-           this.property1 = prop1;
-           this.property2 = prop2;
-           this.property3 = prop3;
-                   
-       }
-
-        public String getProperty1() {
-            return property1;
-        }
-
-        public double getProperty2() {
-            return property2;
-        }
-
-        public String[] getProperty3() {
-            return property3;
-        }       
-    }
+                .andExpect(jsonPath("$.name", is("my-test-form")));
+    }                 
 }

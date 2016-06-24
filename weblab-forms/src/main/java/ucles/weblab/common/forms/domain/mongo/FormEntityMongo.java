@@ -16,7 +16,7 @@ public class FormEntityMongo implements FormEntity {
 
     private UUID id;
     private String name;
-    private JsonSchema schema;
+    private String schema;
     private String applicationName;
     private String businessStream;
     
@@ -53,7 +53,7 @@ public class FormEntityMongo implements FormEntity {
     }
 
     @Override
-    public JsonSchema getSchema() {
+    public String getSchema() {
         return schema;
     }
     
