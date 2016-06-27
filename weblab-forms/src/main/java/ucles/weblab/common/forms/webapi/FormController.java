@@ -1,8 +1,10 @@
 package ucles.weblab.common.forms.webapi;
 
+import com.fasterxml.jackson.module.jsonSchema.JsonSchema;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import javax.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,8 +16,14 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import ucles.weblab.common.identity.domain.Belongs;
+import ucles.weblab.common.schema.webapi.ControllerMethodSchemaCreator;
+import ucles.weblab.common.schema.webapi.JsonSchemaMetadata;
+import ucles.weblab.common.schema.webapi.SchemaProvidingController;
 import ucles.weblab.common.schema.webapi.SelfDescribingController;
+import ucles.weblab.common.webapi.exception.ResourceNotFoundException;
 import ucles.weblab.common.webapi.resource.ResourceListWrapper;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
@@ -29,39 +37,57 @@ import static ucles.weblab.common.webapi.MoreMediaTypes.APPLICATION_JSON_UTF8_VA
  */
 @RestController
 @RequestMapping("/api/forms")
-public class FormController extends SelfDescribingController<FormController, FormResource> {
+public class FormController extends FormSelfDescribingController<FormController, FormResource> {
     
     private static final Logger log = LoggerFactory.getLogger(FormController.class);
     
     private final FormDelegate formDelegate;
-    
+
     @Autowired
-    public FormController(FormDelegate formDelegate) {
+    public FormController(FormDelegate formDelegate, 
+                          ControllerMethodSchemaCreator controllerMethodSchemaCreator) {
+        
+        super(controllerMethodSchemaCreator);
         this.formDelegate = formDelegate;
     }
     
-    @Override
-    @RequestMapping(value = "/{businessStream}/", 
+    @RequestMapping(value = "/", 
                     method = RequestMethod.POST, 
                     consumes = APPLICATION_JSON_VALUE, 
                     produces = APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<FormResource> create(@Valid @PathVariable String businessStream,
-                                               @Valid @RequestBody FormResource formResource) {
+    @Override
+    public ResponseEntity<FormResource> create(@Valid @RequestBody FormResource formResource) {
         
         FormResource created = formDelegate.create(formResource);
         
         return new ResponseEntity<>(created, locationHeader(created), HttpStatus.CREATED);
     }
-      
-    @Override
-    @RequestMapping(value = "/{businessStream}/", 
+        
+    
+    @RequestMapping(value = "/", 
                     method = GET, 
                     produces = APPLICATION_JSON_UTF8_VALUE)   
-    public ResourceListWrapper<FormResource> list(@Valid @PathVariable String businessStream) {
-        List<FormResource> result = new ArrayList<>();
+    @Override
+    public ResourceListWrapper<FormResource> list(@JsonSchemaMetadata(title = "Business Stream", order = 40)
+                                                  @RequestParam(value = "businessStream", required=false) String businessStream,
+                                                  @JsonSchemaMetadata(title = "Application Name", order = 40)
+                                                  @RequestParam(value = "applicationName", required=false) String applicationName  ) {
+        
+        List<FormResource> result = formDelegate.list(businessStream, applicationName);
         ResourceListWrapper<FormResource> list = ResourceListWrapper.wrap(result);
         
         return list;
     }        
     
+    @RequestMapping(value = "/{businessStream}/{id}",
+            method = GET,
+            produces = APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<? extends FormResource> view(@Valid @PathVariable String businessStream,
+                                                        @Valid @PathVariable UUID id) {
+        
+        FormResource testVenue = formDelegate.get(businessStream, id);
+        addDescribedByLink(testVenue);
+        return ResponseEntity.ok(testVenue);
+    }
+
 }

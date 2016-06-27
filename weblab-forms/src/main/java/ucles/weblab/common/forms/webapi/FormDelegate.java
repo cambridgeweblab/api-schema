@@ -2,6 +2,8 @@ package ucles.weblab.common.forms.webapi;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.List;
+import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +13,9 @@ import ucles.weblab.common.forms.domain.FormFactory;
 import ucles.weblab.common.forms.domain.FormRepository;
 import ucles.weblab.common.forms.domain.ImmutableForm;
 import ucles.weblab.common.forms.exception.BadDataException;
+import ucles.weblab.common.webapi.exception.ResourceNotFoundException;
+
+import static java.util.stream.Collectors.toList;
 
 /**
  * A delegate class sitting between controllers and repositories.
@@ -62,6 +67,22 @@ public class FormDelegate {
         return returned;
         
     }
+    
+    public FormResource get(String businessStream, UUID id) {
+        
+        FormEntity formEntity = formRepository.findOne(id).orElseThrow(() -> new ResourceNotFoundException(id));
+        FormResource resource = toResource(formEntity);
+        
+        return resource;
+    }
+    
+    public List<FormResource> list(String businessStream, String applicationName) {
+        List<? extends FormEntity> entities = formRepository.findOneByBusinessStreamAndApplicationName(businessStream, applicationName);
+        List<FormResource> result = entities.stream().map(formAssembler::toResource).collect(toList());
+
+        return result;
+    }
+    
     
     private FormResource toResource(FormEntity entity) {
         return formAssembler.toResource(entity);

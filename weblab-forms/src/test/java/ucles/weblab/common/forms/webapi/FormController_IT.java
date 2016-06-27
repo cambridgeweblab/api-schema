@@ -21,6 +21,8 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.PropertyPlaceholderAutoConfiguration;
@@ -48,6 +50,7 @@ import ucles.weblab.common.forms.domain.FormFactory;
 import ucles.weblab.common.forms.domain.FormRepository;
 import ucles.weblab.common.forms.domain.mongo.FormFactoryMongo;
 import ucles.weblab.common.forms.domain.mongo.FormRepositoryMongo;
+import ucles.weblab.common.schema.webapi.ControllerMethodSchemaCreator;
 import ucles.weblab.common.schema.webapi.EnumSchemaCreator;
 import ucles.weblab.common.schema.webapi.ResourceSchemaCreator;
 import ucles.weblab.common.security.SecurityChecker;
@@ -60,9 +63,12 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static ucles.weblab.common.schema.webapi.SchemaMediaTypes.APPLICATION_SCHEMA_JSON_UTF8_VALUE;
 /**
  *
  * @author Sukhraj
@@ -73,6 +79,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 //@Transactional
 public class FormController_IT extends AbstractRestController_IT {
  
+    private static final Logger log = LoggerFactory.getLogger(FormController_IT.class);
+    
     @Autowired
     private MongoTemplate mongoTemplate; 
     
@@ -140,6 +148,13 @@ public class FormController_IT extends AbstractRestController_IT {
         }
         
         @Bean
+        ControllerMethodSchemaCreator controllerMethodSchemaCreator(ObjectMapper objectMapper, 
+                                                                    CrossContextConversionService crossContextConversionService, 
+                                                                    EnumSchemaCreator enumSchemaCreator) {
+            return new ControllerMethodSchemaCreator(objectMapper, crossContextConversionService, enumSchemaCreator);
+        }
+        
+        @Bean
         FormDelegate formDelegate(FormRepository formRepository,
                                   FormResourceAssembler formAssembler,
                                   FormFactory formFactory) {
@@ -172,13 +187,24 @@ public class FormController_IT extends AbstractRestController_IT {
         FormResource form = new FormResource("my-test-form", "test-webapp", "ca-business-stream", node);
         
         String jsonString = json(form);
-        System.out.println("JSON data to POST: " + jsonString);
+        log.debug("JSON data to POST: " + jsonString);
                 
-        ResultActions postResult = mockMvc.perform(post("/api/forms/test-business-stream/")
+        ResultActions postResult = mockMvc.perform(post("/api/forms/")
                 .contentType(APPLICATION_JSON_UTF8)
                 .content(jsonString))
                 .andExpect(status().isCreated())
                 .andExpect(content().contentType(APPLICATION_JSON_UTF8))
                 .andExpect(jsonPath("$.name", is("my-test-form")));
-    }                 
+    }       
+    
+    @Test
+    public void testGetSchema() throws Exception {
+                       
+        ResultActions result = mockMvc.perform(get("/api/forms/$schema/")
+                .contentType(APPLICATION_JSON_UTF8))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(APPLICATION_SCHEMA_JSON_UTF8_VALUE));
+        
+        log.debug("Schema is: " + result.andReturn().getResponse().getContentAsString());
+    }
 }

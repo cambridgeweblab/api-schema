@@ -13,6 +13,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.hateoas.mvc.ResourceAssemblerSupport;
 import ucles.weblab.common.forms.domain.FormEntity;
 
+import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
+import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
+
 
 /**
  *
@@ -32,7 +35,9 @@ public class FormResourceAssembler extends ResourceAssemblerSupport<FormEntity, 
        
     @Override
     public FormResource toResource(FormEntity entity) {
-        FormResource resource = instantiateResource(entity);        
+        FormResource resource = instantiateResource(entity); 
+        resource.add(linkTo(methodOn(FormController.class).view(entity.getBusinessStream(), entity.getId())).withSelfRel());
+
         return resource;
     }
  
