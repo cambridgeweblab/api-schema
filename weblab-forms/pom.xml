@@ -40,14 +40,21 @@
         <dependency>
             <groupId>ucles.weblab</groupId>
             <artifactId>weblab-common</artifactId>
-        </dependency>
+        </dependency>       
+        <dependency>
+            <groupId>ucles.weblab</groupId>
+            <artifactId>weblab-json-schema</artifactId>            
+        </dependency>        
+        <dependency>
+            <groupId>ucles.weblab</groupId>
+            <artifactId>weblab-cross-context</artifactId>            
+        </dependency>      
+        <!--Spring -->
         <dependency>
             <groupId>org.springframework.data</groupId>
             <artifactId>spring-data-mongodb</artifactId>
             <optional>true</optional>
         </dependency>
-                
-        <!--Spring -->
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-webmvc</artifactId>
@@ -63,6 +70,8 @@
             <artifactId>spring-hateoas</artifactId>
             <optional>true</optional>
         </dependency>
+        
+        <!--jackson -->
         <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-jsr310</artifactId>
@@ -110,8 +119,12 @@
             <artifactId>javax.servlet-api</artifactId>
             <scope>test</scope>
         </dependency>
-        
-
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-autoconfigure</artifactId>
+            <version>1.3.3.RELEASE</version>
+            <type>jar</type>
+        </dependency>
     </dependencies>
 
 </project>

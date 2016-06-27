@@ -49,7 +49,9 @@ public class FormResourceAssembler extends ResourceAssemblerSupport<FormEntity, 
         FormResource resource = new FormResource(entity.getName(), 
                                                 entity.getApplicationName(), 
                                                 entity.getBusinessStream(), 
-                                                schemaAsNode);       
+                                                schemaAsNode);
+        
+        
         return resource;
     }    
     

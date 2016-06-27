@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.module.jsonSchema.JsonSchema;
+import com.fasterxml.jackson.module.jsonSchema.factories.JsonSchemaFactory;
 import com.fasterxml.jackson.module.jsonSchema.factories.SchemaFactoryWrapper;
 import com.fasterxml.jackson.module.jsonSchema.types.ObjectSchema;
 import java.io.InputStream;
@@ -23,8 +24,10 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.PropertyPlaceholderAutoConfiguration;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.data.mongo.MongoDataAutoConfiguration;
 import org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration;
+import org.springframework.boot.autoconfigure.security.SecurityAutoConfiguration;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.boot.test.WebIntegrationTest;
 import org.springframework.context.annotation.Bean;
@@ -35,6 +38,8 @@ import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
+import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
+import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.web.servlet.ResultActions;
@@ -43,7 +48,12 @@ import ucles.weblab.common.forms.domain.FormFactory;
 import ucles.weblab.common.forms.domain.FormRepository;
 import ucles.weblab.common.forms.domain.mongo.FormFactoryMongo;
 import ucles.weblab.common.forms.domain.mongo.FormRepositoryMongo;
+import ucles.weblab.common.schema.webapi.EnumSchemaCreator;
+import ucles.weblab.common.schema.webapi.ResourceSchemaCreator;
+import ucles.weblab.common.security.SecurityChecker;
 import ucles.weblab.common.test.webapi.AbstractRestController_IT;
+import ucles.weblab.common.xc.service.CrossContextConversionService;
+import ucles.weblab.common.xc.service.CrossContextConversionServiceImpl;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.Matchers.is;
@@ -74,12 +84,50 @@ public class FormController_IT extends AbstractRestController_IT {
     
     @Configuration
     @EnableMongoRepositories(basePackageClasses = {FormRepositoryMongo.class})
-    @Import({MongoAutoConfiguration.class, MongoDataAutoConfiguration.class, PropertyPlaceholderAutoConfiguration.class})
+    @Import({SecurityAutoConfiguration.class, MongoAutoConfiguration.class, MongoDataAutoConfiguration.class, PropertyPlaceholderAutoConfiguration.class})
     @ComponentScan(basePackageClasses = {FormController.class})
     @EnableAutoConfiguration
     public static class Config {
         
+        @Bean
+        @ConditionalOnMissingBean(MethodSecurityExpressionHandler.class)
+        MethodSecurityExpressionHandler methodSecurityExpressionHandler() {
+            return new DefaultMethodSecurityExpressionHandler();
+        }
         
+        @Bean
+        SecurityChecker securityChecker(MethodSecurityExpressionHandler handler) {
+            return new SecurityChecker(handler);
+        }
+    
+        @Bean
+        CrossContextConversionService crossContextConversionService() {
+            CrossContextConversionServiceImpl crossContextConversionService = new CrossContextConversionServiceImpl();
+            return crossContextConversionService;
+        }
+    
+        @Bean
+        EnumSchemaCreator enumSchemaCreator(final JsonSchemaFactory schemaFactory) {
+            return new EnumSchemaCreator();
+        }
+    
+        @Bean
+        JsonSchemaFactory jsonSchemaFactory() {
+            return new JsonSchemaFactory();
+        }
+    
+        @Bean
+        public ResourceSchemaCreator resourceSchemaCreator(SecurityChecker securityChecker,                                                           
+                                                           CrossContextConversionService crossContextConversionService,
+                                                           EnumSchemaCreator enumSchemaCreator,
+                                                           JsonSchemaFactory jsonSchemaFactory) {
+
+            return new ResourceSchemaCreator(securityChecker, 
+                                            new ObjectMapper(), 
+                                            crossContextConversionService, 
+                                            enumSchemaCreator, 
+                                            jsonSchemaFactory);
+        }
         
         @Bean
         FormResourceAssembler formResourceAssembler() {
@@ -115,7 +163,6 @@ public class FormController_IT extends AbstractRestController_IT {
     }
     
     @Test
-    @Ignore
     public void testSave() throws Exception {
        
         ObjectMapper mapper = new ObjectMapper();
@@ -127,7 +174,7 @@ public class FormController_IT extends AbstractRestController_IT {
         String jsonString = json(form);
         System.out.println("JSON data to POST: " + jsonString);
                 
-        ResultActions postResult = mockMvc.perform(post("/api/forms/")
+        ResultActions postResult = mockMvc.perform(post("/api/forms/test-business-stream/")
                 .contentType(APPLICATION_JSON_UTF8)
                 .content(jsonString))
                 .andExpect(status().isCreated())
