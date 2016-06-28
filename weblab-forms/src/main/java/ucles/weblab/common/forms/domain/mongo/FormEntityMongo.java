@@ -1,7 +1,6 @@
 package ucles.weblab.common.forms.domain.mongo;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.module.jsonSchema.JsonSchema;
+import java.time.Instant;
 import java.util.UUID;
 import org.springframework.data.mongodb.core.mapping.Document;
 import ucles.weblab.common.forms.domain.Form;
@@ -19,6 +18,9 @@ public class FormEntityMongo implements FormEntity {
     private String schema;
     private String applicationName;
     private String businessStream;
+    private String description;
+    private Instant validFrom;
+    private Instant validTo;
     
     @SuppressWarnings("UnusedDeclaration") // For Jackson
     protected FormEntityMongo() {
@@ -30,6 +32,9 @@ public class FormEntityMongo implements FormEntity {
         schema = vo.getSchema();
         applicationName = vo.getApplicationName();
         businessStream = vo.getBusinessStream();
+        description = vo.getDescription();
+        validFrom = vo.getValidFrom();
+        validTo = vo.getValidTo();
     }
     
     @Override
@@ -55,6 +60,21 @@ public class FormEntityMongo implements FormEntity {
     @Override
     public String getSchema() {
         return schema;
+    }
+
+    @Override
+    public String getDescription() {
+        return description;
+    }
+
+    @Override
+    public Instant getValidFrom() {
+        return validFrom;
+    }
+
+    @Override
+    public Instant getValidTo() {
+        return validTo;
     }
     
 }

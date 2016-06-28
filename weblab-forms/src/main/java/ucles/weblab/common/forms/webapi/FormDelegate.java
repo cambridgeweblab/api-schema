@@ -56,6 +56,9 @@ public class FormDelegate {
                                 .businessStream(resource.getBusinessStream())
                                 .name(resource.getName())
                                 .schema(stringValue)
+                                .description(resource.getDescription())
+                                .validFrom(resource.getValidFrom())
+                                .validTo(resource.getValidTo())
                                 .build(); 
 
         FormEntity formEntity = formFactory.newFormEntity(vo);

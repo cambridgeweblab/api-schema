@@ -2,23 +2,11 @@ package ucles.weblab.common.forms.webapi;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.module.jsonSchema.JsonSchema;
 import com.fasterxml.jackson.module.jsonSchema.factories.JsonSchemaFactory;
-import com.fasterxml.jackson.module.jsonSchema.factories.SchemaFactoryWrapper;
-import com.fasterxml.jackson.module.jsonSchema.types.ObjectSchema;
 import java.io.InputStream;
-import java.math.BigDecimal;
-import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Arrays;
+import java.time.Instant;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -36,7 +24,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
@@ -45,7 +32,6 @@ import org.springframework.security.access.expression.method.MethodSecurityExpre
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.transaction.annotation.Transactional;
 import ucles.weblab.common.forms.domain.FormFactory;
 import ucles.weblab.common.forms.domain.FormRepository;
 import ucles.weblab.common.forms.domain.mongo.FormFactoryMongo;
@@ -58,10 +44,7 @@ import ucles.weblab.common.test.webapi.AbstractRestController_IT;
 import ucles.weblab.common.xc.service.CrossContextConversionService;
 import ucles.weblab.common.xc.service.CrossContextConversionServiceImpl;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
@@ -183,8 +166,15 @@ public class FormController_IT extends AbstractRestController_IT {
         ObjectMapper mapper = new ObjectMapper();
         final InputStream resource = getClass().getResourceAsStream("test-schema.json");
         JsonNode node = mapper.readTree(resource);
-        
-        FormResource form = new FormResource("my-test-form", "test-webapp", "ca-business-stream", node);
+       
+        FormResource form = new FormResource(null, 
+                                            "my-test-form-name",
+                                            "my-test-form-description",
+                                            "test-webapp", 
+                                            "ca-business-stream", 
+                                            node,
+                                            Instant.now(),
+                                            Instant.now());
         
         String jsonString = json(form);
         log.debug("JSON data to POST: " + jsonString);
@@ -194,7 +184,7 @@ public class FormController_IT extends AbstractRestController_IT {
                 .content(jsonString))
                 .andExpect(status().isCreated())
                 .andExpect(content().contentType(APPLICATION_JSON_UTF8))
-                .andExpect(jsonPath("$.name", is("my-test-form")));
+                .andExpect(jsonPath("$.name", is("my-test-form-name")));
     }       
     
     @Test
