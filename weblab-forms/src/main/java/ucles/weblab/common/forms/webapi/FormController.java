@@ -85,9 +85,9 @@ public class FormController extends FormSelfDescribingController<FormController,
     public ResponseEntity<? extends FormResource> view(@Valid @PathVariable String businessStream,
                                                         @Valid @PathVariable UUID id) {
         
-        FormResource testVenue = formDelegate.get(businessStream, id);
-        addDescribedByLink(testVenue);
-        return ResponseEntity.ok(testVenue);
+        FormResource formResource = formDelegate.get(businessStream, id);
+        addDescribedByLink(formResource);
+        return ResponseEntity.ok(formResource);
     }
 
 }

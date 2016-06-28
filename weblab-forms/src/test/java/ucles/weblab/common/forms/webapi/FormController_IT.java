@@ -3,8 +3,12 @@ package ucles.weblab.common.forms.webapi;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.module.jsonSchema.factories.JsonSchemaFactory;
+import com.jayway.jsonpath.JsonPath;
 import java.io.InputStream;
+import java.net.URI;
 import java.time.Instant;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -27,6 +31,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -161,7 +166,7 @@ public class FormController_IT extends AbstractRestController_IT {
     }
     
     @Test
-    public void testSave() throws Exception {
+    public void testSaveAndView() throws Exception {
        
         ObjectMapper mapper = new ObjectMapper();
         final InputStream resource = getClass().getResourceAsStream("test-schema.json");
@@ -178,13 +183,20 @@ public class FormController_IT extends AbstractRestController_IT {
         
         String jsonString = json(form);
         log.debug("JSON data to POST: " + jsonString);
-                
+                        
+        final CompletableFuture<String> location = new CompletableFuture<>();
+
         ResultActions postResult = mockMvc.perform(post("/api/forms/")
                 .contentType(APPLICATION_JSON_UTF8)
                 .content(jsonString))
                 .andExpect(status().isCreated())
                 .andExpect(content().contentType(APPLICATION_JSON_UTF8))
-                .andExpect(jsonPath("$.name", is("my-test-form-name")));
+                .andExpect(jsonPath("$.name", is("my-test-form-name")))
+                .andDo(r -> location.complete(r.getResponse().getHeader(HttpHeaders.LOCATION)));
+                
+        log.info("Post result: " + postResult.andReturn().getResponse().getContentAsString());
+        
+        
     }       
     
     @Test
