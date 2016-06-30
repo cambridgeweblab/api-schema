@@ -1,8 +1,7 @@
 package ucles.weblab.common.forms.domain;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.module.jsonSchema.JsonSchema;
 import java.time.Instant;
+import java.util.List;
 import org.immutables.value.Value;
 
 /**
@@ -13,10 +12,11 @@ import org.immutables.value.Value;
 @Value.Immutable
 public interface Form {
         
+    String getId();
     String getName();
     String getDescription();
     String getSchema();
-    String getBusinessStream();
+    List<String> getBusinessStreams();
     String getApplicationName();
     Instant getValidFrom();
     Instant getValidTo();

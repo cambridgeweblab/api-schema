@@ -52,8 +52,9 @@ public class FormDelegate {
         }
         
         Form vo = ImmutableForm.builder()
+                                .id(resource.getFormId())
                                 .applicationName(resource.getApplicationName())
-                                .businessStream(resource.getBusinessStream())
+                                .businessStreams(resource.getBusinessStreams())
                                 .name(resource.getName())
                                 .schema(stringValue)
                                 .description(resource.getDescription())
@@ -71,7 +72,7 @@ public class FormDelegate {
         
     }
     
-    public FormResource get(String businessStream, UUID id) {
+    public FormResource get(String id) {
         
         FormEntity formEntity = formRepository.findOne(id).orElseThrow(() -> new ResourceNotFoundException(id));
         FormResource resource = toResource(formEntity);
@@ -80,7 +81,7 @@ public class FormDelegate {
     }
     
     public List<FormResource> list(String businessStream, String applicationName) {
-        List<? extends FormEntity> entities = formRepository.findOneByBusinessStreamAndApplicationName(businessStream, applicationName);
+        List<? extends FormEntity> entities = formRepository.findByBusinessStreamsContainingAndApplicationName(businessStream, applicationName);
         List<FormResource> result = entities.stream().map(formAssembler::toResource).collect(toList());
 
         return result;

@@ -1,15 +1,10 @@
 package ucles.weblab.common.forms.webapi;
 
-import com.fasterxml.jackson.module.jsonSchema.JsonSchema;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 import javax.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.hateoas.ResourceSupport;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,12 +13,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import ucles.weblab.common.identity.domain.Belongs;
 import ucles.weblab.common.schema.webapi.ControllerMethodSchemaCreator;
 import ucles.weblab.common.schema.webapi.JsonSchemaMetadata;
-import ucles.weblab.common.schema.webapi.SchemaProvidingController;
-import ucles.weblab.common.schema.webapi.SelfDescribingController;
-import ucles.weblab.common.webapi.exception.ResourceNotFoundException;
 import ucles.weblab.common.webapi.resource.ResourceListWrapper;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
@@ -79,13 +70,12 @@ public class FormController extends FormSelfDescribingController<FormController,
         return list;
     }        
     
-    @RequestMapping(value = "/{businessStream}/{id}",
+    @RequestMapping(value = "/{id}",
             method = GET,
             produces = APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<? extends FormResource> view(@Valid @PathVariable String businessStream,
-                                                        @Valid @PathVariable UUID id) {
+    public ResponseEntity<? extends FormResource> view(@Valid @PathVariable String id) {
         
-        FormResource formResource = formDelegate.get(businessStream, id);
+        FormResource formResource = formDelegate.get(id);
         addDescribedByLink(formResource);
         return ResponseEntity.ok(formResource);
     }

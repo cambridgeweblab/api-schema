@@ -1,7 +1,8 @@
 package ucles.weblab.common.forms.domain.mongo;
 
 import java.time.Instant;
-import java.util.UUID;
+import java.util.List;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import ucles.weblab.common.forms.domain.Form;
 import ucles.weblab.common.forms.domain.FormEntity;
@@ -13,11 +14,13 @@ import ucles.weblab.common.forms.domain.FormEntity;
 @Document(collection = "forms")
 public class FormEntityMongo implements FormEntity {
 
-    private UUID id;
+    @Id
+    private String id;
+    
     private String name;
     private String schema;
     private String applicationName;
-    private String businessStream;
+    private List<String> businessStreams;
     private String description;
     private Instant validFrom;
     private Instant validTo;
@@ -27,18 +30,18 @@ public class FormEntityMongo implements FormEntity {
     }
     
     public FormEntityMongo(Form vo) {
-        id = UUID.randomUUID();
+        id = vo.getId();
         name = vo.getName();
         schema = vo.getSchema();
         applicationName = vo.getApplicationName();
-        businessStream = vo.getBusinessStream();
+        businessStreams = vo.getBusinessStreams();
         description = vo.getDescription();
         validFrom = vo.getValidFrom();
         validTo = vo.getValidTo();
     }
     
     @Override
-    public UUID getId() {
+    public String getId() {
         return id;
     }
 
@@ -48,8 +51,8 @@ public class FormEntityMongo implements FormEntity {
     }
 
     @Override
-    public String getBusinessStream() {
-        return businessStream;
+    public List<String> getBusinessStreams() {
+        return businessStreams;
     }
 
     @Override

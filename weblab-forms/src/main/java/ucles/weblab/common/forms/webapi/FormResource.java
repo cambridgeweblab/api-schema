@@ -1,10 +1,12 @@
 package ucles.weblab.common.forms.webapi;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonValueFormat;
 import org.springframework.hateoas.ResourceSupport;
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 import javax.validation.constraints.NotNull;
 import ucles.weblab.common.schema.webapi.JsonSchema;
@@ -15,9 +17,11 @@ import ucles.weblab.common.schema.webapi.JsonSchemaMetadata;
  * A form resource representing 
  * @author Sukhraj
  */
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class FormResource extends ResourceSupport {
     
-    private UUID formId;
+    @JsonSchemaMetadata(title = "ID", description = "Unique identifier of the form, e.g. a short name", order = 0)
+    private String formId;
     
     @NotNull
     @JsonSchemaMetadata(title = "Name", description = "Name of the form", order = 1)
@@ -31,8 +35,8 @@ public class FormResource extends ResourceSupport {
     private String applicationName;
     
     @NotNull
-    @JsonSchemaMetadata(title = "Business Stream", description = "Business stream that this form belongs to, CIE, OCR or CE", order = 4)    
-    private String businessStream;
+    @JsonSchemaMetadata(title = "Business Streams", description = "Business stream that this form belongs to, CIE, OCR or CE", order = 4)    
+    private List<String> businessStreams;
     
     @NotNull
     @JsonSchemaMetadata(title = "Schema", description = "The schema of the form to save", order = 5)        
@@ -56,11 +60,11 @@ public class FormResource extends ResourceSupport {
         
     }
     
-    public FormResource(UUID formId, 
+    public FormResource(String formId, 
                         String name,
                         String description,
                         String applicationName, 
-                        String businessStream, 
+                        List<String> businessStreams, 
                         JsonNode schema,
                         Instant validFrom, 
                         Instant validTo) {
@@ -69,7 +73,7 @@ public class FormResource extends ResourceSupport {
         this.name = name;
         this.description = description;
         this.applicationName = applicationName;
-        this.businessStream = businessStream;
+        this.businessStreams = businessStreams;
         this.schema = schema;
         this.validFrom = validFrom;
         this.validTo = validTo;
@@ -83,8 +87,8 @@ public class FormResource extends ResourceSupport {
         return applicationName;
     }
 
-    public String getBusinessStream() {
-        return businessStream;
+    public List<String> getBusinessStreams() {
+        return businessStreams;
     }
 
     public JsonNode getSchema() {
@@ -103,7 +107,7 @@ public class FormResource extends ResourceSupport {
         return validTo;
     }
 
-    public UUID getFormId() {
+    public String getFormId() {
         return formId;
     }
 

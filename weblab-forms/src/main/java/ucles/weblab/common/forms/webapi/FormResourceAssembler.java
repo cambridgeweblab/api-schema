@@ -32,7 +32,7 @@ public class FormResourceAssembler extends ResourceAssemblerSupport<FormEntity, 
     @Override
     public FormResource toResource(FormEntity entity) {
         FormResource resource = instantiateResource(entity); 
-        resource.add(linkTo(methodOn(FormController.class).view(entity.getBusinessStream(), entity.getId())).withSelfRel());
+        resource.add(linkTo(methodOn(FormController.class).view(entity.getId())).withSelfRel());
 
         return resource;
     }
@@ -51,7 +51,7 @@ public class FormResourceAssembler extends ResourceAssemblerSupport<FormEntity, 
                                                 entity.getName(),
                                                 entity.getDescription(),
                                                 entity.getApplicationName(), 
-                                                entity.getBusinessStream(), 
+                                                entity.getBusinessStreams(), 
                                                 schemaAsNode,
                                                 entity.getValidFrom(), 
                                                 entity.getValidTo());

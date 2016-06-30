@@ -7,6 +7,7 @@ import com.jayway.jsonpath.JsonPath;
 import java.io.InputStream;
 import java.net.URI;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import org.junit.After;
@@ -36,6 +37,7 @@ import org.springframework.security.access.expression.method.DefaultMethodSecuri
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 import ucles.weblab.common.forms.domain.FormFactory;
 import ucles.weblab.common.forms.domain.FormRepository;
@@ -49,10 +51,12 @@ import ucles.weblab.common.test.webapi.AbstractRestController_IT;
 import ucles.weblab.common.xc.service.CrossContextConversionService;
 import ucles.weblab.common.xc.service.CrossContextConversionServiceImpl;
 
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -70,18 +74,12 @@ public class FormController_IT extends AbstractRestController_IT {
     private static final Logger log = LoggerFactory.getLogger(FormController_IT.class);
     
     @Autowired
-    private MongoTemplate mongoTemplate; 
-    
-    @Autowired
-    private FormDelegate formDelegate;    
-    
-    @Autowired
-    private ObjectMapper objectMapper;
+    private MongoTemplate mongoTemplate;         
     
     @Configuration
     @EnableMongoRepositories(basePackageClasses = {FormRepositoryMongo.class})
     @Import({SecurityAutoConfiguration.class, MongoAutoConfiguration.class, MongoDataAutoConfiguration.class, PropertyPlaceholderAutoConfiguration.class})
-    @ComponentScan(basePackageClasses = {FormController.class})
+    @ComponentScan(basePackageClasses = {FormController.class, FormDelegate.class})
     @EnableAutoConfiguration
     public static class Config {
         
@@ -163,6 +161,7 @@ public class FormController_IT extends AbstractRestController_IT {
     public void tearDown() {
         SecurityContextHolder.getContext().setAuthentication(null);
         mongoTemplate.remove(new Query(), "forms");
+        mongoTemplate.remove(new Query(), "formEntity");
     }
     
     @Test
@@ -172,11 +171,11 @@ public class FormController_IT extends AbstractRestController_IT {
         final InputStream resource = getClass().getResourceAsStream("test-schema.json");
         JsonNode node = mapper.readTree(resource);
        
-        FormResource form = new FormResource(null, 
+        FormResource form = new FormResource("my-form-id", 
                                             "my-test-form-name",
                                             "my-test-form-description",
                                             "test-webapp", 
-                                            "ca-business-stream", 
+                                            Arrays.asList("ca-business-stream"), 
                                             node,
                                             Instant.now(),
                                             Instant.now());
@@ -208,5 +207,78 @@ public class FormController_IT extends AbstractRestController_IT {
                 .andExpect(content().contentType(APPLICATION_SCHEMA_JSON_UTF8_VALUE));
         
         log.debug("Schema is: " + result.andReturn().getResponse().getContentAsString());
+    }
+    
+    @Test
+    public void testSaveAndList() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        final InputStream resource = getClass().getResourceAsStream("test-schema.json");
+        JsonNode node = mapper.readTree(resource);
+       
+        //post 2 forms for the same business stream and same application name
+        FormResource form = new FormResource("my-form-id-1", 
+                                            "my-test-form-name-1",
+                                            "my-test-form-description-1",
+                                            "test-webapp", 
+                                            Arrays.asList("ca-business-stream"), 
+                                            node,
+                                            Instant.now(),
+                                            Instant.now());
+        
+        final CompletableFuture<String> location = new CompletableFuture<>();
+
+        ResultActions postResult = mockMvc.perform(post("/api/forms/")
+                .contentType(APPLICATION_JSON_UTF8)
+                .content(json(form)))
+                .andExpect(status().isCreated())
+                .andExpect(content().contentType(APPLICATION_JSON_UTF8))
+                .andExpect(jsonPath("$.name", is("my-test-form-name-1")))
+                .andDo(r -> location.complete(r.getResponse().getHeader(HttpHeaders.LOCATION)));
+         
+        
+        form = new FormResource("my-form-id-2", 
+                                "my-test-form-name-2",
+                                "my-test-form-description-2",
+                                "test-webapp", 
+                                Arrays.asList("ca-business-stream"), 
+                                node,
+                                Instant.now(),
+                                Instant.now());
+        
+        ResultActions postResult2 = mockMvc.perform(post("/api/forms/")
+                .contentType(APPLICATION_JSON_UTF8)
+                .content(json(form)))
+                .andExpect(status().isCreated())
+                .andExpect(content().contentType(APPLICATION_JSON_UTF8))
+                .andExpect(jsonPath("$.name", is("my-test-form-name-2")))
+                .andDo(r -> location.complete(r.getResponse().getHeader(HttpHeaders.LOCATION)));         
+        
+        //post a form for a different application and a different business stream
+        form = new FormResource("my-form-id-3", 
+                                "my-test-form-name-3",
+                                "my-test-form-description-3",
+                                "some-different-webapp", 
+                                Arrays.asList("ca-different-business-stream"), 
+                                node,
+                                Instant.now(),
+                                Instant.now());
+        
+        ResultActions postResult3 = mockMvc.perform(post("/api/forms/")
+                .contentType(APPLICATION_JSON_UTF8)
+                .content(json(form)))
+                .andExpect(status().isCreated())
+                .andExpect(content().contentType(APPLICATION_JSON_UTF8))
+                .andExpect(jsonPath("$.name", is("my-test-form-name-3")))
+                .andDo(r -> location.complete(r.getResponse().getHeader(HttpHeaders.LOCATION)));         
+        
+        //check that they return 2 
+        MvcResult return1 = mockMvc.perform(get("/api/forms/?businessStream=ca-business-stream&applicationName=test-webapp")
+                .contentType(APPLICATION_JSON_UTF8))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(APPLICATION_JSON_UTF8))
+                .andExpect(jsonPath("$.list", hasSize(2)))
+                .andExpect(jsonPath("$.list[0].name", is("my-test-form-name-1")))
+                .andExpect(jsonPath("$.list[1].name", is("my-test-form-name-2")))
+                .andReturn(); 
     }
 }

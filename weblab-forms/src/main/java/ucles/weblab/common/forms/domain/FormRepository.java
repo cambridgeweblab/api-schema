@@ -2,7 +2,6 @@ package ucles.weblab.common.forms.domain;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 /**
  *
@@ -14,9 +13,9 @@ public interface FormRepository {
 
     List<? extends FormEntity> findAllByOrderByNameAsc();
 
-    Optional<? extends FormEntity> findOne(UUID id);
+    Optional<? extends FormEntity> findOne(String id);
 
     void delete(FormEntity form);
     
-    List<? extends FormEntity> findOneByBusinessStreamAndApplicationName(String businessName, String applicationName);
+    List<? extends FormEntity> findByBusinessStreamsContainingAndApplicationName(String businessStream, String applicationName);
 }

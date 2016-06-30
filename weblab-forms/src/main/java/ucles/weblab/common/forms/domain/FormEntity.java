@@ -1,12 +1,15 @@
 package ucles.weblab.common.forms.domain;
 
-import java.util.UUID;
+import java.util.List;
 
 /**
  *
  * @author Sukhraj
  */
 public interface FormEntity extends Form {
+    @Override
+    List<String> getBusinessStreams();
     
-    UUID getId();
+    @Override
+    String getApplicationName();
 }
