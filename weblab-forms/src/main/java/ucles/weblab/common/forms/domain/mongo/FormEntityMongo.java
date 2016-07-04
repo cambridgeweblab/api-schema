@@ -3,16 +3,17 @@ package ucles.weblab.common.forms.domain.mongo;
 import java.time.Instant;
 import java.util.List;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Transient;
+import org.springframework.data.domain.Persistable;
 import org.springframework.data.mongodb.core.mapping.Document;
 import ucles.weblab.common.forms.domain.Form;
 import ucles.weblab.common.forms.domain.FormEntity;
-
 /**
  *
  * @author Sukhraj
  */
 @Document(collection = "forms")
-public class FormEntityMongo implements FormEntity {
+public class FormEntityMongo implements FormEntity, Persistable<String>{
 
     @Id
     private String id;
@@ -24,6 +25,9 @@ public class FormEntityMongo implements FormEntity {
     private String description;
     private Instant validFrom;
     private Instant validTo;
+    
+    @Transient
+    private boolean isNew;
     
     @SuppressWarnings("UnusedDeclaration") // For Jackson
     protected FormEntityMongo() {
@@ -38,6 +42,7 @@ public class FormEntityMongo implements FormEntity {
         description = vo.getDescription();
         validFrom = vo.getValidFrom();
         validTo = vo.getValidTo();
+        isNew = true;
     }
     
     @Override
@@ -79,5 +84,47 @@ public class FormEntityMongo implements FormEntity {
     public Instant getValidTo() {
         return validTo;
     }
+    
+    @Override
+    public boolean isNew() {
+        return isNew;
+    }
+
+    @Override
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    @Override
+    public void setSchema(String schema) {
+        this.schema = schema;
+    }
+
+    @Override
+    public void setBusinessStreams(List<String> businessStreams) {
+        this.businessStreams = businessStreams;
+    }
+
+    @Override
+    public void setApplicationName(String applicationName) {
+        this.applicationName = applicationName;
+    }
+
+    @Override
+    public void setValidFrom(Instant validFrom) {
+        this.validFrom = validFrom;
+    }
+
+    @Override
+    public void setValidTo(Instant validTo) {
+        this.validTo = validTo;
+    }
+    
+   
     
 }

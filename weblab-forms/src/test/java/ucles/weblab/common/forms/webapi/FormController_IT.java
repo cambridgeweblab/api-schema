@@ -3,15 +3,13 @@ package ucles.weblab.common.forms.webapi;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.module.jsonSchema.factories.JsonSchemaFactory;
-import com.jayway.jsonpath.JsonPath;
 import java.io.InputStream;
-import java.net.URI;
 import java.time.Instant;
 import java.util.Arrays;
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -53,8 +51,8 @@ import ucles.weblab.common.xc.service.CrossContextConversionServiceImpl;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -280,5 +278,54 @@ public class FormController_IT extends AbstractRestController_IT {
                 .andExpect(jsonPath("$.list[0].name", is("my-test-form-name-1")))
                 .andExpect(jsonPath("$.list[1].name", is("my-test-form-name-2")))
                 .andReturn(); 
+    }
+    
+    /**
+     * Ignoring this test until the PUT (update) of a form is working. 
+     * 
+     * @throws Exception 
+     */
+    @Test
+    @Ignore
+    public void testSaveThenUpdate() throws Exception {
+        
+        ObjectMapper mapper = new ObjectMapper();
+        final InputStream resource = getClass().getResourceAsStream("test-schema.json");
+        JsonNode node = mapper.readTree(resource);
+        
+        //post a form for a different application and a different business stream
+        FormResource form = new FormResource("my-form-id-forsaveandupdate", 
+                                "my-test-form-name-3",
+                                "my-test-form-description-3",
+                                "some-different-webapp", 
+                                Arrays.asList("ca-different-business-stream"), 
+                                node,
+                                Instant.now(),
+                                Instant.now());
+        
+        ResultActions postResult = mockMvc.perform(post("/api/forms/")
+                .contentType(APPLICATION_JSON_UTF8)
+                .content(json(form)))
+                .andExpect(status().isCreated())
+                .andExpect(content().contentType(APPLICATION_JSON_UTF8))
+                .andExpect(jsonPath("$.name", is("my-test-form-name-3")));        
+        
+        //create an updated resource
+        form = new FormResource("my-form-id-forsaveandupdate", 
+                                "my-test-form-updated-name",
+                                "my-test-form-updated-description",
+                                "some-different-webapp", 
+                                Arrays.asList("ca-different-business-stream"), 
+                                node,
+                                Instant.now(),
+                                Instant.now());
+        
+        ResultActions postResultUpdate = mockMvc.perform(put("/api/forms/")
+                .contentType(APPLICATION_JSON_UTF8)
+                .content(json(form)))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(APPLICATION_JSON_UTF8))
+                .andExpect(jsonPath("$.name", is("my-test-form-updated-name")));        
+        
     }
 }

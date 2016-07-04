@@ -1,7 +1,6 @@
 package ucles.weblab.common.forms.domain;
 
 import java.util.List;
-import java.util.Optional;
 
 /**
  *
@@ -13,7 +12,7 @@ public interface FormRepository {
 
     List<? extends FormEntity> findAllByOrderByNameAsc();
 
-    Optional<? extends FormEntity> findOne(String id);
+    <S extends FormEntity> S findOne(String id);
 
     void delete(FormEntity form);
     

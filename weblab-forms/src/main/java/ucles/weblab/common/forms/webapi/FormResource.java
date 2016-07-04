@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonValueFormat;
 import org.springframework.hateoas.ResourceSupport;
 import java.time.Instant;
 import java.util.List;
-import java.util.UUID;
+import java.util.Objects;
 import javax.validation.constraints.NotNull;
 import ucles.weblab.common.schema.webapi.JsonSchema;
 import ucles.weblab.common.schema.webapi.JsonSchemaMetadata;
@@ -109,6 +109,37 @@ public class FormResource extends ResourceSupport {
 
     public String getFormId() {
         return formId;
+    }
+    
+    @Override
+    public String toString() {
+        return String.format(
+                "FormResource[id=%s, name='%s', description='%s', validFrom='%s', validTo='%s']",
+                formId, name, description, validFrom, validTo);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+
+        final FormResource other = (FormResource) obj;
+        if ((this.formId == null) ? (other.formId != null) : !this.formId.equals(other.formId)) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 9;
+        hash = 67 * hash + Objects.hashCode(this.formId);
+        hash = 67 * hash + Objects.hashCode(this.name);
+        return hash;
     }
 
 }

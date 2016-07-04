@@ -1,6 +1,9 @@
 package ucles.weblab.common.forms.webapi;
 
+import com.fasterxml.jackson.module.jsonSchema.JsonSchema;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import javax.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,10 +18,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ucles.weblab.common.schema.webapi.ControllerMethodSchemaCreator;
 import ucles.weblab.common.schema.webapi.JsonSchemaMetadata;
+import ucles.weblab.common.schema.webapi.SchemaMediaTypes;
 import ucles.weblab.common.webapi.resource.ResourceListWrapper;
+import ucles.weblab.common.xc.service.CrossContextMapping;
 
+import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
+import static org.springframework.web.bind.annotation.RequestMethod.PUT;
 import static ucles.weblab.common.webapi.HateoasUtils.locationHeader;
 import static ucles.weblab.common.webapi.MoreMediaTypes.APPLICATION_JSON_UTF8_VALUE;
 
@@ -77,7 +84,18 @@ public class FormController extends FormSelfDescribingController<FormController,
         
         FormResource formResource = formDelegate.get(id);
         addDescribedByLink(formResource);
-        return ResponseEntity.ok(formResource);
+        return new ResponseEntity<>(formResource, locationHeader(formResource), HttpStatus.OK);
     }
+    
+    /*@RequestMapping(value = "/",
+            method = PUT,
+            produces = APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<? extends FormResource> update(@Valid @RequestBody FormResource formResource) {
+        
+        FormResource result = formDelegate.update(formResource);
+        addDescribedByLink(result);
+        return new ResponseEntity<>(result, locationHeader(result), HttpStatus.OK);
+
+    }*/
 
 }
