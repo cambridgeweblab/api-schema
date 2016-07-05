@@ -39,8 +39,8 @@ public class FormResource extends ResourceSupport {
     private List<String> businessStreams;
     
     @NotNull
-    @JsonSchemaMetadata(title = "Schema", description = "The schema of the form to save", order = 5)        
-    private JsonNode schema;
+    @JsonSchemaMetadata(title = "Form Definition", description = "Form definition of the form to save", order = 5)        
+    private JsonNode formDefinition;
     
     @NotNull
     @JsonFormat(shape = JsonFormat.Shape.STRING)
@@ -65,7 +65,7 @@ public class FormResource extends ResourceSupport {
                         String description,
                         String applicationName, 
                         List<String> businessStreams, 
-                        JsonNode schema,
+                        JsonNode formDefinition,
                         Instant validFrom, 
                         Instant validTo) {
         
@@ -74,7 +74,7 @@ public class FormResource extends ResourceSupport {
         this.description = description;
         this.applicationName = applicationName;
         this.businessStreams = businessStreams;
-        this.schema = schema;
+        this.formDefinition = formDefinition;
         this.validFrom = validFrom;
         this.validTo = validTo;
     }
@@ -91,8 +91,8 @@ public class FormResource extends ResourceSupport {
         return businessStreams;
     }
 
-    public JsonNode getSchema() {
-        return schema;
+    public JsonNode getFormDefinition() {
+        return formDefinition;
     }
 
     public String getDescription() {

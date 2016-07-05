@@ -44,7 +44,7 @@ public class FormDelegate {
     public FormResource create(FormResource resource) {
         String stringValue = null;
         try {
-            stringValue = objectMapper.writeValueAsString(resource.getSchema());
+            stringValue = objectMapper.writeValueAsString(resource.getFormDefinition());
         } catch (JsonProcessingException ex) {
             log.error("Can not convert schema to a string", ex);
             throw new BadDataException("Can not convert schema to a string", null);
@@ -96,7 +96,7 @@ public class FormDelegate {
         }
         String stringValue = null;
         try {
-            stringValue = objectMapper.writeValueAsString(resource.getSchema());
+            stringValue = objectMapper.writeValueAsString(resource.getFormDefinition());
         } catch (JsonProcessingException ex) {
             log.error("Can not convert schema to a string", ex);
             throw new BadDataException("Can not convert schema to a string", null);
