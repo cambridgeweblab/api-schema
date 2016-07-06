@@ -26,6 +26,7 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -70,6 +71,18 @@ public class EnumSchemaCreatorTest {
         assertThat("Expect enum values", elementEnums, Matchers.contains(singletonValueSets));
         assertThat("Expect enum titles", Arrays.stream(elements).map(ValueTypeSchema::getTitle).collect(Collectors.toList()), Matchers.contains("♂", "♀"));
         assertThat("Expect enum descriptions", Arrays.stream(elements).map(ValueTypeSchema::getDescription).collect(Collectors.toList()), Matchers.contains("Male", "Female"));
+    }
+
+    @Test
+    public void givenNameFnAndDescriptionFnProvided_whenOnlyOneValue_thenSimpleEnumSchemaExtended() {
+        Optional<Function<String, String>> nameFn = Optional.of(b -> "Hobson's Choice");
+        Optional<Function<String, String>> descriptionFn = Optional.of(b -> "Take it or leave it");
+        JsonSchema result = enumSchemaCreator.createEnum(Stream.of("it"), Function.identity(), nameFn, descriptionFn, schemaFactory::stringSchema);
+        assertEquals("Expect string schema", JsonFormatTypes.STRING, result.getType());
+        ValueTypeSchema valueTypeSchema = result.asValueTypeSchema();
+        assertThat("Expect single string value", valueTypeSchema.getEnums(), Matchers.contains("it"));
+        assertEquals("Expect title", "Hobson's Choice", valueTypeSchema.getTitle());
+        assertEquals("Expect description", "Take it or leave it", valueTypeSchema.getDescription());
     }
 
     @Test

@@ -49,14 +49,21 @@ public class EnumSchemaCreator {
         JsonSchema jsonSchema;
         if (nameFn.isPresent() || descriptionFn.isPresent()) {
             jsonSchema = new NonBrokenUnionTypeSchema();
-            jsonSchema.asUnionTypeSchema().setElements(sourceStream
+            ValueTypeSchema[] elements = sourceStream
                     .map(r -> {
                         final ValueTypeSchema valueSchema = valueSchemaSupplier.get();
                         nameFn.map(f -> f.apply(r)).ifPresent(valueSchema::setTitle);
                         descriptionFn.map(f -> f.apply(r)).ifPresent(valueSchema::setDescription);
                         valueSchema.setEnums(Collections.singleton(valueFn.apply(r)));
                         return valueSchema;
-                    }).toArray(ValueTypeSchema[]::new));
+                    }).toArray(ValueTypeSchema[]::new);
+            if (elements.length > 1) {
+                jsonSchema.asUnionTypeSchema().setElements(elements);
+            } else if (elements.length == 1) {
+                return elements[0];
+            } else {
+                throw new IllegalArgumentException("Enums must contain at least one element.");
+            }
         } else {
             jsonSchema = valueSchemaSupplier.get();
             jsonSchema.asValueTypeSchema().setEnums(sourceStream

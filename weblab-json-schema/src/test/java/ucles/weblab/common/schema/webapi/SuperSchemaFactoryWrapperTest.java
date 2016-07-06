@@ -72,12 +72,21 @@ public class SuperSchemaFactoryWrapperTest {
         })
         private String fruityField;
 
+        @JsonSchema(enumValues = {
+                @EnumConstant(value = "brass", title = "Muck")
+        })
+        private String dirtyField;
+
         public String getPickyField() {
             return pickyField;
         }
 
         public String getFruityField() {
             return fruityField;
+        }
+
+        public String getDirtyField() {
+            return dirtyField;
         }
     }
 
@@ -101,6 +110,29 @@ public class SuperSchemaFactoryWrapperTest {
         com.fasterxml.jackson.module.jsonSchema.JsonSchema superSchema = baseSchema.getExtends()[0];
         assertTrue("Expect super-schema to be a string schema", superSchema.isStringSchema());
         assertEquals("Expect super-schema to have our enums", enumSchema.getEnums(), superSchema.asValueTypeSchema().getEnums());
+    }
+
+    @Test
+    public void testInliningSingleValueEnumWithTitle() throws NoSuchFieldException {
+        BeanProperty prop = mock(BeanProperty.class);
+        JsonSchema annotation = DummyBean.class.getDeclaredField("dirtyField").getAnnotation(JsonSchema.class);
+        when(prop.getAnnotation(JsonSchema.class)).thenReturn(annotation);
+
+        StringSchema enumSchema = schemaFactory.stringSchema();
+        enumSchema.setEnums(Arrays.stream(annotation.enumValues()).map(EnumConstant::value).collect(Collectors.toCollection(HashSet<String>::new)));
+        enumSchema.setTitle(Arrays.stream(annotation.enumValues()).findFirst().map(EnumConstant::title).get());
+
+        when(enumSchemaCreator.createEnum(anyMap(), any())).thenReturn(enumSchema);
+
+        ValueTypeSchema baseSchema = schemaFactory.stringSchema();
+        superSchemaFactoryWrapper.addEnumConstraints(baseSchema, prop);
+        assertNotNull("Expect schema extension", baseSchema.getExtends());
+        assertEquals("Expect one super-schema", 1, baseSchema.getExtends().length);
+
+        com.fasterxml.jackson.module.jsonSchema.JsonSchema superSchema = baseSchema.getExtends()[0];
+        assertTrue("Expect super-schema to be a string schema", superSchema.isStringSchema());
+        assertEquals("Expect super-schema to have our enums", enumSchema.getEnums(), superSchema.asValueTypeSchema().getEnums());
+        assertEquals("Expect super-schema to have our title", enumSchema.getTitle(), superSchema.asValueTypeSchema().getTitle());
     }
 
     @Test
