@@ -28,10 +28,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * @since 14/12/15
@@ -74,7 +71,7 @@ public class EnumSchemaCreatorTest {
     }
 
     @Test
-    public void givenNameFnAndDescriptionFnProvided_whenOnlyOneValue_thenSimpleEnumSchemaExtended() {
+    public void givenNameFnAndDescriptionFnProvided_whenOnlyOneValue_thenSimpleEnumSchemaCreated() {
         Optional<Function<String, String>> nameFn = Optional.of(b -> "Hobson's Choice");
         Optional<Function<String, String>> descriptionFn = Optional.of(b -> "Take it or leave it");
         JsonSchema result = enumSchemaCreator.createEnum(Stream.of("it"), Function.identity(), nameFn, descriptionFn, schemaFactory::stringSchema);
@@ -83,6 +80,18 @@ public class EnumSchemaCreatorTest {
         assertThat("Expect single string value", valueTypeSchema.getEnums(), Matchers.contains("it"));
         assertEquals("Expect title", "Hobson's Choice", valueTypeSchema.getTitle());
         assertEquals("Expect description", "Take it or leave it", valueTypeSchema.getDescription());
+    }
+
+    @Test
+    public void givenNameFnAndDescriptionFnProvided_whenNoValues_thenSimpleEnumSchemaCreated() {
+        Optional<Function<String, String>> nameFn = Optional.of(b -> "Black Hole");
+        Optional<Function<String, String>> descriptionFn = Optional.of(b -> "There's nothing here");
+        JsonSchema result = enumSchemaCreator.createEnum(Stream.empty(), Function.identity(), nameFn, descriptionFn, schemaFactory::stringSchema);
+        assertEquals("Expect string schema", JsonFormatTypes.STRING, result.getType());
+        ValueTypeSchema valueTypeSchema = result.asValueTypeSchema();
+        assertThat("Expect no values", valueTypeSchema.getEnums(), Matchers.iterableWithSize(0));
+        assertNull("Expect no title", valueTypeSchema.getTitle());
+        assertNull("Expect description", valueTypeSchema.getDescription());
     }
 
     @Test

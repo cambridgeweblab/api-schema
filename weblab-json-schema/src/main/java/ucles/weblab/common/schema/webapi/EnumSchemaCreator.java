@@ -62,7 +62,9 @@ public class EnumSchemaCreator {
             } else if (elements.length == 1) {
                 return elements[0];
             } else {
-                throw new IllegalArgumentException("Enums must contain at least one element.");
+                jsonSchema = valueSchemaSupplier.get();
+                jsonSchema.setReadonly(true);
+                jsonSchema.asValueTypeSchema().setEnums(Collections.emptySet());
             }
         } else {
             jsonSchema = valueSchemaSupplier.get();
