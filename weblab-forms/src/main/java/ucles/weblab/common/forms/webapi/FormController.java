@@ -87,7 +87,7 @@ public class FormController extends FormSelfDescribingController<FormController,
         return new ResponseEntity<>(formResource, locationHeader(formResource), HttpStatus.OK);
     }
     
-    /*@RequestMapping(value = "/",
+    @RequestMapping(value = "/",
             method = PUT,
             produces = APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<? extends FormResource> update(@Valid @RequestBody FormResource formResource) {
@@ -96,6 +96,6 @@ public class FormController extends FormSelfDescribingController<FormController,
         addDescribedByLink(result);
         return new ResponseEntity<>(result, locationHeader(result), HttpStatus.OK);
 
-    }*/
+    }
 
 }

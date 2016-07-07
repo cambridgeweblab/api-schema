@@ -153,6 +153,7 @@ public class FormController_IT extends AbstractRestController_IT {
     @Before
     public void runBefore() throws Exception {
         mongoTemplate.remove(new Query(), "forms");
+        mongoTemplate.remove(new Query(), "formEntity");
     }
     
     @After
@@ -180,7 +181,8 @@ public class FormController_IT extends AbstractRestController_IT {
         
         String jsonString = json(form);
         log.debug("JSON data to POST: " + jsonString);
-                        
+        System.out.println("string: " + jsonString);     
+        
         final CompletableFuture<String> location = new CompletableFuture<>();
 
         ResultActions postResult = mockMvc.perform(post("/api/forms/")
@@ -286,7 +288,6 @@ public class FormController_IT extends AbstractRestController_IT {
      * @throws Exception 
      */
     @Test
-    @Ignore
     public void testSaveThenUpdate() throws Exception {
         
         ObjectMapper mapper = new ObjectMapper();
