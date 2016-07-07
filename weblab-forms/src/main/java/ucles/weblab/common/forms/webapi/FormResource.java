@@ -35,7 +35,8 @@ public class FormResource extends ResourceSupport {
     private String applicationName;
     
     @NotNull
-    @JsonSchemaMetadata(title = "Business Streams", description = "Business stream that this form belongs to, CIE, OCR or CE", order = 4)    
+    @JsonSchemaMetadata(title = "Business Streams", description = "Business stream that this form belongs to", order = 4)    
+    @JsonSchema(enumRef = "urn:xc:form:businessstreams")
     private List<String> businessStreams;
     
     @NotNull

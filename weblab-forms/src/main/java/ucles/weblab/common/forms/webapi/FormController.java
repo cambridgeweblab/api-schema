@@ -97,5 +97,20 @@ public class FormController extends FormSelfDescribingController<FormController,
         return new ResponseEntity<>(result, locationHeader(result), HttpStatus.OK);
 
     }
-
+    
+    @CrossContextMapping(value = "urn:xc:form:businessstreams")
+    @RequestMapping(value = "/$businessstreams",
+            method = GET,
+            produces = SchemaMediaTypes.APPLICATION_SCHEMA_JSON_UTF8_VALUE)
+    public ResponseEntity<JsonSchema> businessstreams() {
+        
+        List<BusinessStreamBean> businessStreams = Arrays.asList(new BusinessStreamBean("CIE", "Cambridge International Examinations"), 
+                                                             new BusinessStreamBean("OCR", "Oxford, Cambridge and RSA"),
+                                                             new BusinessStreamBean("CE", "Cambridge English Language Assessment"));
+        final JsonSchema enumSchema = this.getSchemaCreator().createEnum(businessStreams, 
+                                                                        methodOn(FormController.class).businessstreams(),
+                                                                        BusinessStreamBean::getAbbreviation, 
+                                                                        Optional.of(BusinessStreamBean::getName));
+        return ResponseEntity.ok(enumSchema);
+    }
 }

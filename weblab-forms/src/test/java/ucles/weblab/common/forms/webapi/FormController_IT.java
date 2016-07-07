@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.module.jsonSchema.factories.JsonSchemaFactory;
 import java.io.InputStream;
+import java.net.URI;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.concurrent.CompletableFuture;
@@ -12,6 +13,7 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,6 +50,7 @@ import ucles.weblab.common.security.SecurityChecker;
 import ucles.weblab.common.test.webapi.AbstractRestController_IT;
 import ucles.weblab.common.xc.service.CrossContextConversionService;
 import ucles.weblab.common.xc.service.CrossContextConversionServiceImpl;
+import ucles.weblab.common.xc.service.CrossContextConverter;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
@@ -73,6 +76,14 @@ public class FormController_IT extends AbstractRestController_IT {
     
     @Autowired
     private MongoTemplate mongoTemplate;         
+    
+    @Autowired
+    private CrossContextConversionServiceImpl conversionService;
+    
+    /*A Mock to map test urls to test urns */
+    private final CrossContextConverter convertor = Mockito.mock(CrossContextConverter.class);       
+    private final String xcBusinessStreamUrl = "http://localhost:8080/api/forms/businessstreams/";
+    private final String xcBusinessStreamUrn = "urn:xc:form:businessstreams";
     
     @Configuration
     @EnableMongoRepositories(basePackageClasses = {FormRepositoryMongo.class})
@@ -148,10 +159,13 @@ public class FormController_IT extends AbstractRestController_IT {
         }
         
         
-    }
+    }      
     
     @Before
     public void runBefore() throws Exception {
+        Mockito.when(convertor.toUrl(URI.create(xcBusinessStreamUrn))).thenReturn(URI.create(xcBusinessStreamUrl));
+        Mockito.when(convertor.toUrn(URI.create(xcBusinessStreamUrl))).thenReturn(URI.create(xcBusinessStreamUrn));
+        conversionService.addConverter(convertor);
         mongoTemplate.remove(new Query(), "forms");
         mongoTemplate.remove(new Query(), "formEntity");
     }
@@ -181,7 +195,6 @@ public class FormController_IT extends AbstractRestController_IT {
         
         String jsonString = json(form);
         log.debug("JSON data to POST: " + jsonString);
-        System.out.println("string: " + jsonString);     
         
         final CompletableFuture<String> location = new CompletableFuture<>();
 
