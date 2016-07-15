@@ -30,6 +30,12 @@ import javax.validation.constraints.NotNull;
 class AdditionalConstraintResolver {
     private Logger log = LoggerFactory.getLogger(getClass());
 
+    private final StandardEvaluationContext evalContext;
+    
+    public AdditionalConstraintResolver(StandardEvaluationContext evalContext) {
+        this.evalContext = evalContext;
+    }
+    
     public Optional<Boolean> getNumberExclusiveMinimum(BeanProperty prop) {
         DecimalMin decimalMinAnnotation = prop.getAnnotation(DecimalMin.class);
         return Optional.ofNullable(decimalMinAnnotation).map(an -> !an.inclusive());
@@ -56,7 +62,7 @@ class AdditionalConstraintResolver {
         JsonSchema jsonSchemaAnnotation = prop.getAnnotation(JsonSchema.class);
         return Optional.ofNullable(jsonSchemaAnnotation).map(an -> an.readOnly() ? Boolean.TRUE : null);
     }
-
+    
     public Optional<Boolean> getNotNull(BeanProperty prop) {
         NotNull notNullAnnotation = prop.getAnnotation(NotNull.class);
         return Optional.ofNullable(notNullAnnotation).map(n -> true);
@@ -88,12 +94,7 @@ class AdditionalConstraintResolver {
                 .map(an -> {
                     if (!an.enumRef().isEmpty()) {
                         try {
-                            final Expression expression = new SpelExpressionParser().parseExpression(an.enumRef(), new TemplateParserContext());
-
-                            StandardEvaluationContext evalContext = new StandardEvaluationContext();
-                            Optional.ofNullable(SecurityContextHolder.getContext().getAuthentication())
-                                    .map(Authentication::getPrincipal)
-                                    .ifPresent(currentUser -> evalContext.setVariable("currentUser", currentUser));
+                            final Expression expression = new SpelExpressionParser().parseExpression(an.enumRef(), new TemplateParserContext());                            
                             String value = expression.getValue(evalContext, String.class);
                             if (value != null) {
                                 return URI.create(value);
@@ -106,5 +107,30 @@ class AdditionalConstraintResolver {
                     }
                     return null;
                 });
+    }
+    
+    /**
+     * Evaluate the read only expression and return an Optional boolean of the result. 
+     * 
+     * @param prop
+     * @return 
+     */
+    public Optional<Boolean> getReadOnlyExpression(BeanProperty prop) {                  
+        JsonSchema jsonSchemaAnnotation = prop.getAnnotation(JsonSchema.class);
+        return Optional.ofNullable(jsonSchemaAnnotation)
+                .map(an -> {
+                    if (!an.readOnlyExpression().isEmpty()) {
+                        try {
+                            final Expression expression = new SpelExpressionParser().parseExpression(an.readOnlyExpression(), new TemplateParserContext());
+                                                       
+                            Boolean value = expression.getValue(evalContext, Boolean.class);
+                            return value;
+                        } catch (ExpressionException e) {
+                            log.warn("Ignoring unprocessable readOnlyExpression: " + an.readOnlyExpression(), e);
+                        }
+                    }
+                    return null;
+                });
+    
     }
 }

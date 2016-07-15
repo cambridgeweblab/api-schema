@@ -30,6 +30,7 @@ import java.util.Base64;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.stream.Collectors;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -53,9 +54,13 @@ public class SuperSchemaFactoryWrapperTest {
     EnumSchemaCreator enumSchemaCreator;
     SuperSchemaFactoryWrapper superSchemaFactoryWrapper;
 
+    
     @Before
     public void init() {
-        superSchemaFactoryWrapper = new SuperSchemaFactoryWrapper(crossContextConversionService, enumSchemaCreator, objectMapper);
+        superSchemaFactoryWrapper = new SuperSchemaFactoryWrapper(crossContextConversionService, 
+                                                                  enumSchemaCreator, 
+                                                                  objectMapper, 
+                                                                  new StandardEvaluationContext());
     }
 
     static class DummyBean {

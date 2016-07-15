@@ -29,6 +29,13 @@ public @interface JsonSchema {
     boolean readOnly() default false;
 
     /**
+     * Set a readonly property to true if the value of this expression evaluates to true. 
+     * 
+     * @return 
+     */
+    String readOnlyExpression() default "";
+    
+    /**
      * Defines a fixed set of constant enum values for this property.
      * Only one of {@code enumValues} and {@link #enumRef()} should be specified otherwise behaviour is undefined.
      */

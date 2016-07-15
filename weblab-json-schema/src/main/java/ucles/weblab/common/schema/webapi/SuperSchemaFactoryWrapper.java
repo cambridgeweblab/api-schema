@@ -42,6 +42,7 @@ import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
 
 /**
  * Add a full set of useful hypermedia properties to schema.
@@ -50,25 +51,32 @@ public class SuperSchemaFactoryWrapper extends SchemaFactoryWrapper {
     private static Logger log = LoggerFactory.getLogger(SuperSchemaFactoryWrapper.class);
 
     private final ValidationConstraintResolver constraintResolver = new AnnotationConstraintResolver();
-    private final AdditionalConstraintResolver additionalConstraintResolver = new AdditionalConstraintResolver();
+    private final AdditionalConstraintResolver additionalConstraintResolver;
     private final CrossContextConversionService crossContextConversionService;
     private final EnumSchemaCreator enumSchemaCreator;
     private final ObjectMapper objectMapper;
-
+    private final StandardEvaluationContext evaluationContext;
+    
     private static class SuperSchemaFactoryWrapperFactory extends WrapperFactory {
         private final CrossContextConversionService crossContextConversionService;
         private final EnumSchemaCreator enumSchemaCreator;
         private final ObjectMapper objectMapper;
-
-        private SuperSchemaFactoryWrapperFactory(CrossContextConversionService crossContextConversionService, EnumSchemaCreator enumSchemaCreator, ObjectMapper objectMapper) {
+        private final StandardEvaluationContext evaluationContext;
+        
+        private SuperSchemaFactoryWrapperFactory(CrossContextConversionService crossContextConversionService, 
+                                                 EnumSchemaCreator enumSchemaCreator, 
+                                                 ObjectMapper objectMapper,
+                                                 StandardEvaluationContext evaluationContext) {
             this.crossContextConversionService = crossContextConversionService;
             this.enumSchemaCreator = enumSchemaCreator;
             this.objectMapper = objectMapper;
+            this.evaluationContext = evaluationContext;
+            
         }
 
         @Override
         public SchemaFactoryWrapper getWrapper(SerializerProvider p) {
-            SchemaFactoryWrapper wrapper = new SuperSchemaFactoryWrapper(crossContextConversionService, enumSchemaCreator, objectMapper);
+            SchemaFactoryWrapper wrapper = new SuperSchemaFactoryWrapper(crossContextConversionService, enumSchemaCreator, objectMapper, evaluationContext);
             wrapper.setProvider(p);
             return wrapper;
         }
@@ -76,7 +84,7 @@ public class SuperSchemaFactoryWrapper extends SchemaFactoryWrapper {
         ;
 
         public SchemaFactoryWrapper getWrapper(SerializerProvider p, VisitorContext rvc) {
-            SchemaFactoryWrapper wrapper = new SuperSchemaFactoryWrapper(crossContextConversionService, enumSchemaCreator, objectMapper);
+            SchemaFactoryWrapper wrapper = new SuperSchemaFactoryWrapper(crossContextConversionService, enumSchemaCreator, objectMapper, evaluationContext);
             wrapper.setProvider(p);
             wrapper.setVisitorContext(rvc);
             return wrapper;
@@ -148,11 +156,16 @@ public class SuperSchemaFactoryWrapper extends SchemaFactoryWrapper {
         }
     }
 
-    public SuperSchemaFactoryWrapper(CrossContextConversionService crossContextConversionService, EnumSchemaCreator enumSchemaCreator, ObjectMapper objectMapper) {
-        super(new SuperSchemaFactoryWrapperFactory(crossContextConversionService, enumSchemaCreator, objectMapper));
+    public SuperSchemaFactoryWrapper(CrossContextConversionService crossContextConversionService, 
+                                     EnumSchemaCreator enumSchemaCreator, 
+                                     ObjectMapper objectMapper, 
+                                     StandardEvaluationContext evaluationContext) {
+        super(new SuperSchemaFactoryWrapperFactory(crossContextConversionService, enumSchemaCreator, objectMapper, evaluationContext));
         this.crossContextConversionService = crossContextConversionService;
         this.enumSchemaCreator = enumSchemaCreator;
         this.objectMapper = objectMapper;
+        this.evaluationContext = evaluationContext;
+        this.additionalConstraintResolver = new AdditionalConstraintResolver(evaluationContext);
     }
 
     @Override
@@ -212,6 +225,7 @@ public class SuperSchemaFactoryWrapper extends SchemaFactoryWrapper {
         }
 
         additionalConstraintResolver.getReadOnly(prop).ifPresent(schema::setReadonly);
+        additionalConstraintResolver.getReadOnlyExpression(prop).ifPresent(schema::setReadonly);        
         additionalConstraintResolver.getNotNull(prop).ifPresent(schema::setRequired);
 
         return schema;

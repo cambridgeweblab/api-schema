@@ -19,6 +19,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.Proxy;
 import java.util.function.BiFunction;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
 
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 import static ucles.weblab.common.webapi.HateoasUtils.toUriString;
@@ -57,18 +58,18 @@ public class ControllerMethodSchemaCreator {
      */
     public com.fasterxml.jackson.module.jsonSchema.JsonSchema createForRequestParams(Object controllerMethod) {
         Assert.isInstanceOf(DummyInvocationUtils.LastInvocationAware.class, controllerMethod);
-
+        StandardEvaluationContext evalContext = new StandardEvaluationContext();
         Parameter[] parameters = ((DummyInvocationUtils.LastInvocationAware) controllerMethod).getLastInvocation().getMethod().getParameters();
         SerializationConfig serializationConfig = objectMapper.getSerializationConfig();
         DefaultSerializerProvider.Impl serializerProvider = ((DefaultSerializerProvider.Impl) objectMapper.getSerializerProvider()).createInstance(serializationConfig, objectMapper.getSerializerFactory());
         // Create a base object schema
-        SuperSchemaFactoryWrapper objectWrapper = new SuperSchemaFactoryWrapper(crossContextConversionService, enumSchemaCreator, objectMapper);
+        SuperSchemaFactoryWrapper objectWrapper = new SuperSchemaFactoryWrapper(crossContextConversionService, enumSchemaCreator, objectMapper, evalContext);
         SuperSchemaFactoryWrapper.ObjectVisitorDecorator propertyEnhancer = (SuperSchemaFactoryWrapper.ObjectVisitorDecorator) objectWrapper.expectObjectFormat(TypeFactory.unknownType());
         ObjectSchema objectSchema = objectWrapper.finalSchema().asObjectSchema();
 
         // Create schemas for each request parameter (as properties) and add them to the object schema
         try {
-            SchemaFactoryWrapper propertyWrapper = new SuperSchemaFactoryWrapper(crossContextConversionService, enumSchemaCreator, objectMapper);
+            SchemaFactoryWrapper propertyWrapper = new SuperSchemaFactoryWrapper(crossContextConversionService, enumSchemaCreator, objectMapper, evalContext);
             for (Parameter parameter : parameters) {
                 if (parameter.getAnnotation(RequestParam.class) != null) {
                     JavaType javaType = serializationConfig.constructType(parameter.getType());

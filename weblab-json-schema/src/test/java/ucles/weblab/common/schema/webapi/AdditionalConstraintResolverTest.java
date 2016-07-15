@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
@@ -21,7 +22,7 @@ import static org.mockito.Mockito.when;
  * @since 15/10/15
  */
 public class AdditionalConstraintResolverTest {
-    private AdditionalConstraintResolver additionalConstraintResolver = new AdditionalConstraintResolver();
+    private AdditionalConstraintResolver additionalConstraintResolver = new AdditionalConstraintResolver(new StandardEvaluationContext());
 
     static class DummyBean {
         @JsonSchema(format = "loopy")

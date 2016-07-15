@@ -19,6 +19,13 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Stream;
+import org.springframework.expression.Expression;
+import org.springframework.expression.common.TemplateParserContext;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
+import org.springframework.hateoas.ResourceSupport;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import static ucles.weblab.common.webapi.LinkRelation.CREATE;
 import static ucles.weblab.common.webapi.LinkRelation.INSTANCES;
@@ -36,8 +43,12 @@ public class ResourceSchemaCreator {
     private final CrossContextConversionService crossContextConversionService;
     private final EnumSchemaCreator enumSchemaCreator;
     private final JsonSchemaFactory schemaFactory;
-
-    public ResourceSchemaCreator(SecurityChecker securityChecker, ObjectMapper objectMapper, CrossContextConversionService crossContextConversionService, EnumSchemaCreator enumSchemaCreator, JsonSchemaFactory schemaFactory) {
+    
+    public ResourceSchemaCreator(SecurityChecker securityChecker, 
+                                ObjectMapper objectMapper, 
+                                CrossContextConversionService crossContextConversionService, 
+                                EnumSchemaCreator enumSchemaCreator, 
+                                JsonSchemaFactory schemaFactory) {
         this.securityChecker = securityChecker;
         this.objectMapper = objectMapper;
         this.crossContextConversionService = crossContextConversionService;
@@ -65,12 +76,32 @@ public class ResourceSchemaCreator {
      * @return a schema object describing the resource, which can be serializaed to JSON itself
      */
     public JsonSchema create(Class resourceClass, Object schemaMethod, Optional<Object> listControllerMethod, Optional<Object> createControllerMethod) {
-        JsonSchema jsonSchema = createFullSchema(resourceClass);
+        JsonSchema jsonSchema = createFullSchema(resourceClass, null);
         decorateJsonSchema(jsonSchema, schemaMethod, listControllerMethod, createControllerMethod);
 
         return jsonSchema;
     }
 
+    /**
+     * This will create a schema using an instance instead. The instance will then 
+     * be available on the Spring context.
+     * 
+     * @param resource - the resource to add on the spring context. 
+     * @param schemaMethod 
+     * @param listControllerMethod
+     * @param createControllerMethod
+     * @return 
+     */
+    public JsonSchema create(ResourceSupport resource, 
+                            Object schemaMethod, 
+                            Optional<Object> listControllerMethod, 
+                            Optional<Object> createControllerMethod) {
+        
+        JsonSchema jsonSchema = createFullSchema(resource.getClass(), resource);
+        decorateJsonSchema(jsonSchema, schemaMethod, listControllerMethod, createControllerMethod);
+        return jsonSchema;
+    }    
+    
     /**
      * As per {@link #create(Class, Object, Optional, Optional)} except that the schema URI is specified explicitly.
      * @param resourceClass the resource to describe
@@ -81,7 +112,7 @@ public class ResourceSchemaCreator {
      * @return a schema object describing the resource, which can be serializaed to JSON itself
      */
     public <T extends Object> JsonSchema create(Class<T> resourceClass, URI schemaUri, Optional<Object> listControllerMethod, Optional<Object> createControllerMethod) {
-        JsonSchema jsonSchema = createFullSchema(resourceClass);
+        JsonSchema jsonSchema = createFullSchema(resourceClass, null);
         decorateJsonSchema(jsonSchema, schemaUri, listControllerMethod, createControllerMethod);
 
         return jsonSchema;
@@ -98,9 +129,28 @@ public class ResourceSchemaCreator {
         return jsonSchema;
     }
 
-    private JsonSchema createFullSchema(Class resourceClass) {
+    /**
+     * Sets up a SchemaFactoryWrapper and variables for the spring evaluation context. 
+     * @param resourceClass - the resource class to make the schema from
+     * @param resource - This will be set on the StandardEvaluationContext as 'currentInstance'
+     * @return 
+     */
+    private JsonSchema createFullSchema(Class resourceClass, ResourceSupport resource) {
         try {
-            SchemaFactoryWrapper wrapper = new SuperSchemaFactoryWrapper(crossContextConversionService, enumSchemaCreator, objectMapper);
+            StandardEvaluationContext evaluationContext = new StandardEvaluationContext();            
+            if (resource != null) {
+                evaluationContext.setVariable("currentInstance", resource);
+            }  
+             Optional.ofNullable(SecurityContextHolder.getContext().getAuthentication())
+                        .map(Authentication::getPrincipal)
+                        .ifPresent(currentUser -> {
+                            evaluationContext.setVariable("currentUser", currentUser);                                       
+                        });
+            
+            SchemaFactoryWrapper wrapper = new SuperSchemaFactoryWrapper(crossContextConversionService, 
+                                                                         enumSchemaCreator, 
+                                                                         objectMapper,
+                                                                         evaluationContext);
             objectMapper.acceptJsonFormatVisitor(objectMapper.constructType(resourceClass), wrapper);
             return wrapper.finalSchema();
         } catch (JsonMappingException e) {
