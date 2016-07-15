@@ -11,9 +11,11 @@ import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
+import org.junit.Before;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
@@ -22,8 +24,7 @@ import static org.mockito.Mockito.when;
  * @since 15/10/15
  */
 public class AdditionalConstraintResolverTest {
-    private AdditionalConstraintResolver additionalConstraintResolver = new AdditionalConstraintResolver(new StandardEvaluationContext());
-
+    private AdditionalConstraintResolver additionalConstraintResolver;
     static class DummyBean {
         @JsonSchema(format = "loopy")
         private String loopyField;
@@ -47,6 +48,16 @@ public class AdditionalConstraintResolverTest {
         })
         private String fruityField;
 
+        @JsonSchema(readOnlyExpression = "#{100 < 500}")
+        private String numberField;
+        
+        @JsonSchema(readOnlyExpression = "#{#currentUsername == 'peterpan'}")
+        private String userField;
+        
+        public String getUserField() {
+            return userField;
+        }
+        
         public String getLoopyField() {
             return loopyField;
         }
@@ -66,6 +77,19 @@ public class AdditionalConstraintResolverTest {
         public String getFruityField() {
             return fruityField;
         }
+        
+        public String getNumberField() {
+            return numberField;
+        }
+    }
+    
+    @Before
+    public void setup() {
+        //put something on the context to test the readonlyexpression annotation value
+        StandardEvaluationContext context = new StandardEvaluationContext();
+        context.setVariable("currentUsername", "peterpan");
+        additionalConstraintResolver = new AdditionalConstraintResolver(context);
+
     }
 
     @Test
@@ -114,5 +138,31 @@ public class AdditionalConstraintResolverTest {
         for (EnumConstant enumConstant : annotation.enumValues()) {
             assertEquals("Expect " + enumConstant.value() + " constant to have title", enumConstant.title(), map.get(enumConstant.value()));
         }
+    }
+    
+    @Test
+    public void testReadOnlyExpressionAttribute() throws NoSuchFieldException {
+        BeanProperty prop = Mockito.mock(BeanProperty.class);
+        JsonSchema annotation = DummyBean.class.getDeclaredField("numberField").getAnnotation(JsonSchema.class);
+
+        when(prop.getAnnotation(JsonSchema.class)).thenReturn(annotation);
+
+        Optional<Boolean> readOnlyExpression = additionalConstraintResolver.getReadOnlyExpression(prop);
+        assertNotNull(readOnlyExpression.get());
+        assertTrue("Readonly expression is not true", readOnlyExpression.get());
+        
+    }
+      
+    @Test
+    public void testReadOnlyExpressionAttributeWithContext() throws NoSuchFieldException {
+        BeanProperty prop = Mockito.mock(BeanProperty.class);
+        JsonSchema annotation = DummyBean.class.getDeclaredField("userField").getAnnotation(JsonSchema.class);
+
+        when(prop.getAnnotation(JsonSchema.class)).thenReturn(annotation);
+
+        Optional<Boolean> readOnlyExpression = additionalConstraintResolver.getReadOnlyExpression(prop);
+        assertNotNull(readOnlyExpression.get());
+        assertTrue("Readonly expression is not true", readOnlyExpression.get());
+        
     }
 }
