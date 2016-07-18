@@ -3,6 +3,7 @@ package ucles.weblab.common.schema.webapi;
 import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonValueFormat;
+import java.net.URI;
 import org.hamcrest.Matchers;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -53,6 +54,13 @@ public class AdditionalConstraintResolverTest {
         
         @JsonSchema(readOnlyExpression = "#{#currentUsername == 'peterpan'}")
         private String userField;
+        
+        @JsonSchema(enumRef = "urn:xc:i18n:countries:$isoCodes")
+        private String enumRefField;
+        
+        public String getEnumRefField() {
+            return enumRefField;
+        }
         
         public String getUserField() {
             return userField;
@@ -163,6 +171,19 @@ public class AdditionalConstraintResolverTest {
         Optional<Boolean> readOnlyExpression = additionalConstraintResolver.getReadOnlyExpression(prop);
         assertNotNull(readOnlyExpression.get());
         assertTrue("Readonly expression is not true", readOnlyExpression.get());
+        
+    }
+    
+    @Test
+    public void testEnufRef() throws NoSuchFieldException {
+        BeanProperty prop = Mockito.mock(BeanProperty.class);
+        JsonSchema annotation = DummyBean.class.getDeclaredField("enumRefField").getAnnotation(JsonSchema.class);
+
+        when(prop.getAnnotation(JsonSchema.class)).thenReturn(annotation);
+
+        Optional<URI> uri = additionalConstraintResolver.getEnumRef(prop);
+        assertNotNull(uri);
+        
         
     }
 }
