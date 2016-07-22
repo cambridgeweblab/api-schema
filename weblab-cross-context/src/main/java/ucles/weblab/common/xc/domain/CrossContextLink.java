@@ -10,6 +10,7 @@ import ucles.weblab.common.xc.webapi.converter.UrlToCrossContextLinkConverter;
 
 import java.io.Serializable;
 import java.net.URI;
+import java.util.Objects;
 
 import static ucles.weblab.common.domain.ConfigurableEntitySupport.configureBean;
 
@@ -51,5 +52,20 @@ public class CrossContextLink implements Serializable {
 
     public URI asUrl() {
         return conversionService.asUrl(uri);
+    }
+    
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        
+        CrossContextLink that = (CrossContextLink) o;
+        
+        return Objects.equals(uri.toString(), that.uri.toString());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(uri.toString());
     }
 }
