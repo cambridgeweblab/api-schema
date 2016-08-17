@@ -5,7 +5,7 @@
     <parent>
         <artifactId>weblab-common-java</artifactId>
         <groupId>ucles.weblab</groupId>
-        <version>0.3-SNAPSHOT</version>
+        <version>0.4-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -51,7 +51,7 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot</artifactId>
-            <version>1.3.3.RELEASE</version>
+            <version>${spring-boot.version}</version>
         </dependency>
         <dependency>
             <groupId>ucles.weblab</groupId>
