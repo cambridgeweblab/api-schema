@@ -34,6 +34,11 @@ public @interface JsonSchema {
      * @return 
      */
     String readOnlyExpression() default "";
+
+    /**
+     * This property defines the media type if exists
+     */
+    String mediaType() default "";
     
     /**
      * Defines a fixed set of constant enum values for this property.
