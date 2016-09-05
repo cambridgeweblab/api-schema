@@ -15,6 +15,7 @@ import com.fasterxml.jackson.module.jsonSchema.factories.SchemaFactoryWrapper;
 import com.fasterxml.jackson.module.jsonSchema.factories.VisitorContext;
 import com.fasterxml.jackson.module.jsonSchema.factories.WrapperFactory;
 import com.fasterxml.jackson.module.jsonSchema.types.ArraySchema;
+import com.fasterxml.jackson.module.jsonSchema.types.HyperSchema;
 import com.fasterxml.jackson.module.jsonSchema.types.NumberSchema;
 import com.fasterxml.jackson.module.jsonSchema.types.ObjectSchema;
 import com.fasterxml.jackson.module.jsonSchema.types.SimpleTypeSchema;
@@ -203,6 +204,7 @@ public class SuperSchemaFactoryWrapper extends SchemaFactoryWrapper {
             if (stringSchema.getPattern() == null) {
                 additionalConstraintResolver.getPattern(prop).ifPresent(stringSchema::setPattern);
             }
+            additionalConstraintResolver.getMediaType(prop).ifPresent(stringSchema::setMediaType);
         }
 
         if (schema.isValueTypeSchema()) {

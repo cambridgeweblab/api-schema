@@ -133,4 +133,27 @@ class AdditionalConstraintResolver {
                 });
     
     }
+    
+    /**
+     * Gets the media type from the annotation 
+     * 
+     * @param prop 
+     */
+    public Optional<String> getMediaType(BeanProperty prop) {
+        JsonSchema jsonSchemaAnnotation = prop.getAnnotation(JsonSchema.class);
+        
+        return Optional.ofNullable(jsonSchemaAnnotation)
+                .map(an -> {
+                    if (!an.mediaType().isEmpty()) {
+                        try {
+                            String mediaType = jsonSchemaAnnotation.mediaType();
+                            return mediaType;
+                        } catch (ExpressionException e) {
+                            log.warn("Ignoring unprocessable readOnlyExpression: " + an.readOnlyExpression(), e);
+                        }
+                    }
+                    return null;
+                });
+                
+    }
 }
