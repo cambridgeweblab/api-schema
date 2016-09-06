@@ -11,7 +11,7 @@ import ucles.weblab.common.forms.domain.FormEntity;
 import ucles.weblab.common.forms.domain.FormFactory;
 import ucles.weblab.common.forms.domain.FormRepository;
 import ucles.weblab.common.forms.domain.ImmutableForm;
-import ucles.weblab.common.forms.exception.BadDataException;
+import ucles.weblab.common.webapi.exception.BadDataException;
 import ucles.weblab.common.webapi.exception.ResourceNotFoundException;
 
 import static java.util.stream.Collectors.toList;
