@@ -58,6 +58,9 @@ public class AdditionalConstraintResolverTest {
         @JsonSchema(enumRef = "urn:xc:i18n:countries:$isoCodes")
         private String enumRefField;
         
+        @JsonSchema(mediaType = "text/html")
+        private String someFileString;
+        
         public String getEnumRefField() {
             return enumRefField;
         }
@@ -88,6 +91,10 @@ public class AdditionalConstraintResolverTest {
         
         public String getNumberField() {
             return numberField;
+        }
+        
+        public String getSomeFileString() {
+            return someFileString;
         }
     }
     
@@ -184,6 +191,24 @@ public class AdditionalConstraintResolverTest {
         Optional<URI> uri = additionalConstraintResolver.getEnumRef(prop);
         assertNotNull(uri);
         
+        
+    }
+    
+    @Test
+    public void testGetMediaType() throws Exception {
+        BeanProperty prop = Mockito.mock(BeanProperty.class);
+        JsonSchema annotationMediaType = DummyBean.class.getDeclaredField("someFileString").getAnnotation(JsonSchema.class);
+        when(prop.getAnnotation(JsonSchema.class)).thenReturn(annotationMediaType);
+
+        Optional<String> mediaType = additionalConstraintResolver.getMediaType(prop);
+        assertNotNull(mediaType);
+        assertEquals("text/html", mediaType.get());
+        
+        //check any other one
+        JsonSchema annotationEnumRef = DummyBean.class.getDeclaredField("enumRefField").getAnnotation(JsonSchema.class);
+        when(prop.getAnnotation(JsonSchema.class)).thenReturn(annotationEnumRef);
+        mediaType = additionalConstraintResolver.getMediaType(prop);
+        assertTrue(!mediaType.isPresent());
         
     }
 }
