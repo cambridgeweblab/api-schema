@@ -2,6 +2,7 @@ package ucles.weblab.common.schema.webapi;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatTypes;
+import com.fasterxml.jackson.module.jsonSchema.*;
 import com.fasterxml.jackson.module.jsonSchema.types.ObjectSchema;
 import org.junit.Before;
 import org.junit.Test;
@@ -70,6 +71,15 @@ public class ControllerMethodSchemaCreatorTest {
         assertEquals("Expect default value for wheels", "steel", objectSchema.getProperties().get("wheels").asSimpleTypeSchema().getDefault());
     }
 
+    @Test
+    public void testEnumParams() {
+        com.fasterxml.jackson.module.jsonSchema.JsonSchema schema = schemaCreator.createForRequestParams(methodOn(CarController.class).configureCarRadio(CarController.RadioType.NONE));
+        assertEquals("Expect object schema", JsonFormatTypes.OBJECT, schema.getType());
+        ObjectSchema objectSchema = schema.asObjectSchema();
+        assertThat("Expect 'type' property", objectSchema.getProperties().keySet(), hasItem("type"));
+        assertEquals("Expect required", true, objectSchema.getProperties().get("type").getRequired());
+    }
+
     @SuppressWarnings("WeakerAccess")
     @RequestMapping("/cars")
     public static class CarController {
@@ -86,6 +96,17 @@ public class ControllerMethodSchemaCreatorTest {
         @RequestMapping("/kit")
         Object configureKitCar(@RequestParam(name = "seats", required = false) String seatMaterial, @RequestParam(name = "wheels", defaultValue = "steel") String wheelType) {
             return (StringUtils.isEmpty(seatMaterial)? "(no seats)" : seatMaterial) + "," + wheelType;
+        }
+
+        @RequestMapping("/radio")
+        Object configureCarRadio(@RequestParam(name = "type") RadioType radio) {
+            return radio.toString();
+        }
+
+        enum RadioType {
+            NONE,
+            AM_FM,
+            DAB
         }
     }
 

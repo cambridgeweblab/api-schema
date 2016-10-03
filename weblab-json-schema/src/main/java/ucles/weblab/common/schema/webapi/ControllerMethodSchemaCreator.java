@@ -1,5 +1,6 @@
 package ucles.weblab.common.schema.webapi;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyDescription;
 import com.fasterxml.jackson.databind.*;
@@ -64,12 +65,14 @@ public class ControllerMethodSchemaCreator {
         DefaultSerializerProvider.Impl serializerProvider = ((DefaultSerializerProvider.Impl) objectMapper.getSerializerProvider()).createInstance(serializationConfig, objectMapper.getSerializerFactory());
         // Create a base object schema
         SuperSchemaFactoryWrapper objectWrapper = new SuperSchemaFactoryWrapper(crossContextConversionService, enumSchemaCreator, objectMapper, evalContext);
+        objectWrapper.setProvider(serializerProvider);
         SuperSchemaFactoryWrapper.ObjectVisitorDecorator propertyEnhancer = (SuperSchemaFactoryWrapper.ObjectVisitorDecorator) objectWrapper.expectObjectFormat(TypeFactory.unknownType());
         ObjectSchema objectSchema = objectWrapper.finalSchema().asObjectSchema();
 
         // Create schemas for each request parameter (as properties) and add them to the object schema
         try {
             SchemaFactoryWrapper propertyWrapper = new SuperSchemaFactoryWrapper(crossContextConversionService, enumSchemaCreator, objectMapper, evalContext);
+            propertyWrapper.setProvider(serializerProvider);
             for (Parameter parameter : parameters) {
                 if (parameter.getAnnotation(RequestParam.class) != null) {
                     JavaType javaType = serializationConfig.constructType(parameter.getType());
@@ -137,6 +140,8 @@ public class ControllerMethodSchemaCreator {
                         return propertyMetadata;
                     case "getMember":
                         return null;
+                    case "findPropertyFormat":
+                        return JsonFormat.Value.empty();
                     default:
                         throw new UnsupportedOperationException(method.getName());
                 }
