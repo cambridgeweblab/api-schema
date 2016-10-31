@@ -92,8 +92,9 @@ public class FormController extends FormSelfDescribingController<FormController,
 
     @RequestMapping(value = "/{id}", method = DELETE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseStatus(HttpStatus.OK)
-    public void delete(@PathVariable String id) {
+    public ResponseEntity<Void> delete(@PathVariable String id) {
         formDelegate.delete(id);
+        return ResponseEntity.ok(null);
     }
 
     @RequestMapping(value = "/",
