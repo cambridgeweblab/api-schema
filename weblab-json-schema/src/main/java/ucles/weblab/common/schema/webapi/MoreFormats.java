@@ -30,6 +30,11 @@ public class MoreFormats {
     public static final String BIRTH_DATE_TIME = "birth-date";
 
     /**
+     * A duration in ISO 8601 format of P[nY][nM][nD]T[nH][nM][nS]
+     */
+    public static final String DURATION = "duration";
+
+    /**
      * An ISO 3166-1 alpha-2 country code. A UI would probably present this as a list of known countries.
      */
     public static final String COUNTRY = "country";
