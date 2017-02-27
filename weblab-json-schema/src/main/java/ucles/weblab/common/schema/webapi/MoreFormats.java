@@ -8,6 +8,10 @@ package ucles.weblab.common.schema.webapi;
  */
 public class MoreFormats {
     /**
+     * Enums to be presented as radio buttons.
+     */
+    public static final String RADIO = "radio";
+    /**
      * This should be an precise decimal value.
      */
     public static final String CURRENCY = "currency";
