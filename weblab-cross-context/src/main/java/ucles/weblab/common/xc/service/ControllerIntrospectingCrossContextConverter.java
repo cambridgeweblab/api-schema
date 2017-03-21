@@ -9,7 +9,7 @@ import org.springframework.core.MethodParameter;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.hateoas.ResourceSupport;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.web.bind.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.PathMatcher;
@@ -26,12 +26,7 @@ import java.net.URI;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.security.Principal;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Optional;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -162,7 +157,10 @@ public class ControllerIntrospectingCrossContextConverter implements CrossContex
                 }
             } else if (parameter.getParameterAnnotation(RequestBody.class) != null && ResourceSupport.class.isAssignableFrom(parameter.getParameterType())) {
                 logger.debug("Skipping @RequestBody parameter " + i + " ");
-            } else if (parameter.getParameterAnnotation(AuthenticationPrincipal.class) != null || Principal.class.isAssignableFrom(parameter.getParameterType()) || Authentication.class.isAssignableFrom(parameter.getParameterType())) {
+            } else if (parameter.getParameterAnnotation(org.springframework.security.web.bind.annotation.AuthenticationPrincipal.class) != null //Keep for backward compatibility
+                    || parameter.getParameterAnnotation(AuthenticationPrincipal.class) != null
+                    || Principal.class.isAssignableFrom(parameter.getParameterType())
+                    || Authentication.class.isAssignableFrom(parameter.getParameterType())) {
                 logger.debug("Skipping security parameter " + i + " [" + parameter + "]");
             } else if (parameter.getParameterAnnotation(RequestBody.class) == null || !ResourceSupport.class.isAssignableFrom(parameter.getParameterType())) {
                 logger.error("Controller method " + method.toString() + " parameter " + i + " [" + parameter + "] is not a @PathVariable or a @RequestBody ResourceSupport");
