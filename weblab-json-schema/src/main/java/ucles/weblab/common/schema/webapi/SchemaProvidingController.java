@@ -1,6 +1,7 @@
 package ucles.weblab.common.schema.webapi;
 
 import com.fasterxml.jackson.module.jsonSchema.JsonSchema;
+import com.fasterxml.jackson.module.jsonSchema.types.LinkDescriptionObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.ResourceSupport;
 import org.springframework.http.ResponseEntity;
@@ -8,6 +9,8 @@ import org.springframework.security.web.bind.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.RequestMapping;
 import ucles.weblab.common.identity.domain.Belongs;
 import ucles.weblab.common.webapi.LinkRelation;
+
+import java.util.Arrays;
 
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
@@ -33,8 +36,8 @@ public abstract class SchemaProvidingController<Self extends SchemaProvidingCont
     @RequestMapping(value = "/$schema", method = GET, produces = SchemaMediaTypes.APPLICATION_SCHEMA_JSON_UTF8_VALUE)
     public abstract ResponseEntity<JsonSchema> describe(@AuthenticationPrincipal Belongs principal);
 
-    protected void addDescribedByLink(Object resource) {        
-        
+    protected void addDescribedByLink(Object resource) {
+
         if (resource instanceof ResourceSupport) {
             ResourceSupport r = (ResourceSupport)resource;
             r.add(linkTo(self().describe(null)).withRel(LinkRelation.DESCRIBED_BY.rel()));
@@ -44,5 +47,16 @@ public abstract class SchemaProvidingController<Self extends SchemaProvidingCont
     public Self self() {
         //noinspection unchecked
         return (Self) methodOn((Class) getClass());
+    }
+
+    /**
+     * Convenience function to update the links array in the schema with a copy of that array
+     * with link appended.
+     */
+    protected void addALink(JsonSchema schema, LinkDescriptionObject link) {
+        LinkDescriptionObject[] links = schema.asSimpleTypeSchema().getLinks();
+        LinkDescriptionObject[] copy = Arrays.copyOf(links, links.length + 1);
+        copy[links.length] = link;
+        schema.asSimpleTypeSchema().setLinks(copy);
     }
 }
