@@ -6,6 +6,7 @@ import com.fasterxml.jackson.module.jsonSchema.JsonSchema;
 import com.fasterxml.jackson.module.jsonSchema.factories.JsonSchemaFactory;
 import com.fasterxml.jackson.module.jsonSchema.factories.SchemaFactoryWrapper;
 import com.fasterxml.jackson.module.jsonSchema.types.LinkDescriptionObject;
+import org.springframework.context.MessageSource;
 import org.springframework.hateoas.core.DummyInvocationUtils;
 import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.springframework.http.HttpMethod;
@@ -40,17 +41,20 @@ public class ResourceSchemaCreator {
     private final CrossContextConversionService crossContextConversionService;
     private final EnumSchemaCreator enumSchemaCreator;
     private final JsonSchemaFactory schemaFactory;
+    private final MessageSource messageSource;
 
     public ResourceSchemaCreator(SecurityChecker securityChecker,
-                                ObjectMapper objectMapper,
-                                CrossContextConversionService crossContextConversionService,
-                                EnumSchemaCreator enumSchemaCreator,
-                                JsonSchemaFactory schemaFactory) {
+                                 ObjectMapper objectMapper,
+                                 CrossContextConversionService crossContextConversionService,
+                                 EnumSchemaCreator enumSchemaCreator,
+                                 JsonSchemaFactory schemaFactory,
+                                 MessageSource messageSource) {
         this.securityChecker = securityChecker;
         this.objectMapper = objectMapper;
         this.crossContextConversionService = crossContextConversionService;
         this.enumSchemaCreator = enumSchemaCreator;
         this.schemaFactory = schemaFactory;
+        this.messageSource = messageSource;
     }
 
     /**
@@ -142,7 +146,7 @@ public class ResourceSchemaCreator {
             SchemaFactoryWrapper wrapper = new SuperSchemaFactoryWrapper(crossContextConversionService,
                                                                          enumSchemaCreator,
                                                                          objectMapper,
-                                                                         evaluationContext);
+                                                                         evaluationContext, messageSource);
             objectMapper.acceptJsonFormatVisitor(objectMapper.constructType(resourceClass), wrapper);
             return wrapper.finalSchema();
         } catch (JsonMappingException e) {

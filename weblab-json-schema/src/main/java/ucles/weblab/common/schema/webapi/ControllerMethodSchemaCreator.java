@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.ser.DefaultSerializerProvider;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.module.jsonSchema.factories.SchemaFactoryWrapper;
 import com.fasterxml.jackson.module.jsonSchema.types.ObjectSchema;
+import org.springframework.context.MessageSource;
 import org.springframework.hateoas.core.DummyInvocationUtils;
 import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.springframework.util.Assert;
@@ -33,11 +34,16 @@ public class ControllerMethodSchemaCreator {
     private final ObjectMapper objectMapper;
     private final CrossContextConversionService crossContextConversionService;
     private final EnumSchemaCreator enumSchemaCreator;
+    private final MessageSource messageSource;
 
-    public ControllerMethodSchemaCreator(ObjectMapper objectMapper, CrossContextConversionService crossContextConversionService, EnumSchemaCreator enumSchemaCreator) {
+    public ControllerMethodSchemaCreator(ObjectMapper objectMapper,
+                                         CrossContextConversionService crossContextConversionService,
+                                         EnumSchemaCreator enumSchemaCreator,
+                                         MessageSource messageSource) {
         this.objectMapper = objectMapper;
         this.crossContextConversionService = crossContextConversionService;
         this.enumSchemaCreator = enumSchemaCreator;
+        this.messageSource = messageSource;
     }
 
     /**
@@ -64,14 +70,14 @@ public class ControllerMethodSchemaCreator {
         SerializationConfig serializationConfig = objectMapper.getSerializationConfig();
         DefaultSerializerProvider.Impl serializerProvider = ((DefaultSerializerProvider.Impl) objectMapper.getSerializerProvider()).createInstance(serializationConfig, objectMapper.getSerializerFactory());
         // Create a base object schema
-        SuperSchemaFactoryWrapper objectWrapper = new SuperSchemaFactoryWrapper(crossContextConversionService, enumSchemaCreator, objectMapper, evalContext);
+        SuperSchemaFactoryWrapper objectWrapper = new SuperSchemaFactoryWrapper(crossContextConversionService, enumSchemaCreator, objectMapper, evalContext, messageSource);
         objectWrapper.setProvider(serializerProvider);
         SuperSchemaFactoryWrapper.ObjectVisitorDecorator propertyEnhancer = (SuperSchemaFactoryWrapper.ObjectVisitorDecorator) objectWrapper.expectObjectFormat(TypeFactory.unknownType());
         ObjectSchema objectSchema = objectWrapper.finalSchema().asObjectSchema();
 
         // Create schemas for each request parameter (as properties) and add them to the object schema
         try {
-            SchemaFactoryWrapper propertyWrapper = new SuperSchemaFactoryWrapper(crossContextConversionService, enumSchemaCreator, objectMapper, evalContext);
+            SchemaFactoryWrapper propertyWrapper = new SuperSchemaFactoryWrapper(crossContextConversionService, enumSchemaCreator, objectMapper, evalContext, messageSource);
             propertyWrapper.setProvider(serializerProvider);
             for (Parameter parameter : parameters) {
                 if (parameter.getAnnotation(RequestParam.class) != null) {

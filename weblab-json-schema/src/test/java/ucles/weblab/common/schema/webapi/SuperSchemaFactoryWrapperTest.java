@@ -8,12 +8,15 @@ import com.fasterxml.jackson.module.jsonSchema.types.ReferenceSchema;
 import com.fasterxml.jackson.module.jsonSchema.types.StringSchema;
 import com.fasterxml.jackson.module.jsonSchema.types.UnionTypeSchema;
 import com.fasterxml.jackson.module.jsonSchema.types.ValueTypeSchema;
+import org.junit.After;
 import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.context.support.StaticMessageSource;
 import ucles.weblab.common.xc.service.CrossContextConversionService;
 
 import java.io.BufferedReader;
@@ -22,6 +25,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Field;
 import java.net.URI;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
@@ -29,9 +33,13 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.stream.Collectors;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 
+import static java.util.Locale.FRANCE;
+import static java.util.Locale.GERMANY;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -53,14 +61,27 @@ public class SuperSchemaFactoryWrapperTest {
     @Mock
     private EnumSchemaCreator enumSchemaCreator;
     private SuperSchemaFactoryWrapper superSchemaFactoryWrapper;
+    private Locale savedLocale;
 
 
     @Before
     public void init() {
+        StaticMessageSource messageSource = new StaticMessageSource();
+        messageSource.addMessage("user", FRANCE, "User (de messageSource)");
+        messageSource.addMessage("user-description", FRANCE, "Le username (de messageSource)");
+
         superSchemaFactoryWrapper = new SuperSchemaFactoryWrapper(crossContextConversionService,
                                                                   enumSchemaCreator,
                                                                   objectMapper,
-                                                                  new StandardEvaluationContext());
+                                                                  new StandardEvaluationContext(),
+                                                                  messageSource);
+        // save and later reset the locale so we don't leave it around for other tests using this thread
+        savedLocale = LocaleContextHolder.getLocale();
+    }
+
+    @After
+    public void reset() {
+        LocaleContextHolder.setLocale(savedLocale);
     }
 
     @SuppressWarnings("unused")
@@ -82,6 +103,11 @@ public class SuperSchemaFactoryWrapperTest {
                 @EnumConstant(value = "brass", title = "Muck")
         })
         private String dirtyField;
+
+        @JsonSchemaMetadata(title = "User", description = "The current username")
+        @JsonSchema(titleKey = "user", descriptionKey = "user-description",
+                readOnlyExpression = "#{#currentUsername == 'peterpan'}")
+        private String userField;
 
         public String getPickyField() {
             return pickyField;
@@ -202,6 +228,41 @@ public class SuperSchemaFactoryWrapperTest {
         JsonNode jsonNode = objectMapper.readTree(new InputStreamReader(parseDataURI(refUri.toString()), StandardCharsets.UTF_8));
     //    assertEquals("Expect enum title to match", firstEnumValue.getTitle(), jsonNode.get("type").get(0).get("title").asText());
         //TODO - get this assert working
+    }
+
+
+    @Test
+    public void messageKeyAttributesShouldBeLookedUpByLocale() throws Exception {
+        LocaleContextHolder.setLocale(FRANCE);
+        BeanProperty prop = mock(BeanProperty.class);
+        Field userField = DummyBean.class.getDeclaredField("userField");
+        when(prop.getAnnotation(JsonSchema.class)).thenReturn(userField.getAnnotation(JsonSchema.class));
+        when(prop.getAnnotation(JsonSchemaMetadata.class)).thenReturn(userField.getAnnotation(JsonSchemaMetadata.class));
+
+        ValueTypeSchema baseSchema = schemaFactory.stringSchema();
+        superSchemaFactoryWrapper.addValidationConstraints(baseSchema, prop);
+
+        assertThat(baseSchema.getTitle()).describedAs("title should be the French from MessageSource")
+                .isEqualTo("User (de messageSource)");
+        assertThat(baseSchema.getDescription()).describedAs("description should be the French from MessageSource")
+                .isEqualTo("Le username (de messageSource)");
+    }
+
+    @Test
+    public void messageKeyAttributesShouldFallbackToTitleAndDesc() throws Exception {
+        LocaleContextHolder.setLocale(GERMANY);
+        BeanProperty prop = mock(BeanProperty.class);
+        Field userField = DummyBean.class.getDeclaredField("userField");
+        when(prop.getAnnotation(JsonSchema.class)).thenReturn(userField.getAnnotation(JsonSchema.class));
+        when(prop.getAnnotation(JsonSchemaMetadata.class)).thenReturn(userField.getAnnotation(JsonSchemaMetadata.class));
+
+        ValueTypeSchema baseSchema = schemaFactory.stringSchema();
+        superSchemaFactoryWrapper.addValidationConstraints(baseSchema, prop);
+
+        assertThat(baseSchema.getTitle()).describedAs("title should default to title annotation if not found")
+                .isEqualTo("User");
+        assertThat(baseSchema.getDescription()).describedAs("description should default to description annotation if not found")
+                .isEqualTo("The current username");
     }
 
     /**

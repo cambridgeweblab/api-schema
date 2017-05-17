@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonValueFormat;
 import com.fasterxml.jackson.module.jsonSchema.validation.ValidationConstraintResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.MessageSource;
 import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionException;
 import org.springframework.expression.common.TemplateParserContext;
@@ -31,7 +32,7 @@ class AdditionalConstraintResolver {
 
     private final StandardEvaluationContext evalContext;
 
-    public AdditionalConstraintResolver(StandardEvaluationContext evalContext) {
+    public AdditionalConstraintResolver(StandardEvaluationContext evalContext, MessageSource messageSource) {
         this.evalContext = evalContext;
     }
 
@@ -126,5 +127,17 @@ class AdditionalConstraintResolver {
 
         return Optional.ofNullable(jsonSchemaAnnotation)
                 .map(an -> an.mediaType().isEmpty() ? null : jsonSchemaAnnotation.mediaType());
+    }
+
+    public Optional<String> getTitleKey(final BeanProperty prop) {
+        JsonSchema jsonSchemaAnnotation = prop.getAnnotation(JsonSchema.class);
+        return Optional.ofNullable(jsonSchemaAnnotation)
+                .map(an -> an.titleKey().isEmpty() ? null : an.titleKey());
+    }
+
+    public Optional<String> getDescriptionKey(final BeanProperty prop) {
+        JsonSchema jsonSchemaAnnotation = prop.getAnnotation(JsonSchema.class);
+        return Optional.ofNullable(jsonSchemaAnnotation)
+                .map(an -> an.descriptionKey().isEmpty() ? null : an.descriptionKey());
     }
 }

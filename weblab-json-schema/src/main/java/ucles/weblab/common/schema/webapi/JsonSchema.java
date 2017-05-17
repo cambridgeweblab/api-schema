@@ -61,4 +61,16 @@ public @interface JsonSchema {
      * the way to do it.
      */
     String pattern() default "";
+
+    /**
+     * If set, this is used as a message key to look up a tranlation according to the current {@link java.util.Locale}.
+     * The result will then override the <code>title</code> property
+     */
+    String titleKey() default "";
+
+    /**
+     * If set, this is used as a message key to look up a tranlation according to the current {@link java.util.Locale}.
+     * The result will then override the <code>description</code> property
+     */
+    String descriptionKey() default "";
 }

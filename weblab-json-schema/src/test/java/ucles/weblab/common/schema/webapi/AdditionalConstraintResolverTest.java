@@ -12,6 +12,7 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
 import org.junit.Before;
+import org.springframework.context.support.StaticMessageSource;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 
 import static org.junit.Assert.assertEquals;
@@ -103,7 +104,8 @@ public class AdditionalConstraintResolverTest {
         //put something on the context to test the readonlyexpression annotation value
         StandardEvaluationContext context = new StandardEvaluationContext();
         context.setVariable("currentUsername", "peterpan");
-        additionalConstraintResolver = new AdditionalConstraintResolver(context);
+        StaticMessageSource messageSource = new StaticMessageSource();
+        additionalConstraintResolver = new AdditionalConstraintResolver(context, messageSource);
     }
 
     @Test
@@ -119,6 +121,7 @@ public class AdditionalConstraintResolverTest {
 
         assertEquals("Expect valueOf() to work", valueFormat, JsonValueFormat.valueOf(annotation.format()));
     }
+
     @Test
     public void whenEnumConstantsSpecified_thenOrderedMapReturned() throws NoSuchFieldException {
         BeanProperty prop = Mockito.mock(BeanProperty.class);
@@ -163,7 +166,6 @@ public class AdditionalConstraintResolverTest {
         Optional<Boolean> readOnlyExpression = additionalConstraintResolver.getReadOnlyExpression(prop);
         assertNotNull(readOnlyExpression.get());
         assertTrue("Readonly expression is not true", readOnlyExpression.get());
-
     }
 
     @Test

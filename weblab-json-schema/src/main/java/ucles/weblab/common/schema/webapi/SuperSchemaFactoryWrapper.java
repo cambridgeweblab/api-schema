@@ -24,6 +24,9 @@ import com.fasterxml.jackson.module.jsonSchema.validation.AnnotationConstraintRe
 import com.fasterxml.jackson.module.jsonSchema.validation.ValidationConstraintResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.MessageSource;
+import org.springframework.context.NoSuchMessageException;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.hateoas.Link;
 import ucles.weblab.common.xc.service.CrossContextConversionService;
 
@@ -39,6 +42,7 @@ import java.util.Base64;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -55,27 +59,30 @@ public class SuperSchemaFactoryWrapper extends SchemaFactoryWrapper {
     private final CrossContextConversionService crossContextConversionService;
     private final EnumSchemaCreator enumSchemaCreator;
     private final ObjectMapper objectMapper;
+    private final MessageSource messageSource;
 
     private static class SuperSchemaFactoryWrapperFactory extends WrapperFactory {
         private final CrossContextConversionService crossContextConversionService;
         private final EnumSchemaCreator enumSchemaCreator;
         private final ObjectMapper objectMapper;
         private final StandardEvaluationContext evaluationContext;
+        private final MessageSource messageSource;
 
         private SuperSchemaFactoryWrapperFactory(CrossContextConversionService crossContextConversionService,
                                                  EnumSchemaCreator enumSchemaCreator,
                                                  ObjectMapper objectMapper,
-                                                 StandardEvaluationContext evaluationContext) {
+                                                 StandardEvaluationContext evaluationContext,
+                                                 MessageSource messageSource) {
             this.crossContextConversionService = crossContextConversionService;
             this.enumSchemaCreator = enumSchemaCreator;
             this.objectMapper = objectMapper;
             this.evaluationContext = evaluationContext;
-
+            this.messageSource = messageSource;
         }
 
         @Override
         public SchemaFactoryWrapper getWrapper(SerializerProvider p) {
-            SchemaFactoryWrapper wrapper = new SuperSchemaFactoryWrapper(crossContextConversionService, enumSchemaCreator, objectMapper, evaluationContext);
+            SchemaFactoryWrapper wrapper = new SuperSchemaFactoryWrapper(crossContextConversionService, enumSchemaCreator, objectMapper, evaluationContext, messageSource);
             wrapper.setProvider(p);
             return wrapper;
         }
@@ -83,7 +90,7 @@ public class SuperSchemaFactoryWrapper extends SchemaFactoryWrapper {
         ;
 
         public SchemaFactoryWrapper getWrapper(SerializerProvider p, VisitorContext rvc) {
-            SchemaFactoryWrapper wrapper = new SuperSchemaFactoryWrapper(crossContextConversionService, enumSchemaCreator, objectMapper, evaluationContext);
+            SchemaFactoryWrapper wrapper = new SuperSchemaFactoryWrapper(crossContextConversionService, enumSchemaCreator, objectMapper, evaluationContext, messageSource);
             wrapper.setProvider(p);
             wrapper.setVisitorContext(rvc);
             return wrapper;
@@ -158,12 +165,14 @@ public class SuperSchemaFactoryWrapper extends SchemaFactoryWrapper {
     public SuperSchemaFactoryWrapper(CrossContextConversionService crossContextConversionService,
                                      EnumSchemaCreator enumSchemaCreator,
                                      ObjectMapper objectMapper,
-                                     StandardEvaluationContext evaluationContext) {
-        super(new SuperSchemaFactoryWrapperFactory(crossContextConversionService, enumSchemaCreator, objectMapper, evaluationContext));
+                                     StandardEvaluationContext evaluationContext,
+                                     MessageSource messageSource) {
+        super(new SuperSchemaFactoryWrapperFactory(crossContextConversionService, enumSchemaCreator, objectMapper, evaluationContext, messageSource));
         this.crossContextConversionService = crossContextConversionService;
         this.enumSchemaCreator = enumSchemaCreator;
         this.objectMapper = objectMapper;
-        this.additionalConstraintResolver = new AdditionalConstraintResolver(evaluationContext);
+        this.additionalConstraintResolver = new AdditionalConstraintResolver(evaluationContext, messageSource);
+        this.messageSource = messageSource;
     }
 
     @Override
@@ -176,7 +185,7 @@ public class SuperSchemaFactoryWrapper extends SchemaFactoryWrapper {
         return super.expectArrayFormat(convertedType);
     }
 
-    private JsonSchema addValidationConstraints(JsonSchema schema, BeanProperty prop) {
+    JsonSchema addValidationConstraints(JsonSchema schema, BeanProperty prop) {
         if(schema.isArraySchema()) {
             ArraySchema arraySchema = schema.asArraySchema();
             arraySchema.setMaxItems(constraintResolver.getArrayMaxItems(prop));
@@ -218,6 +227,9 @@ public class SuperSchemaFactoryWrapper extends SchemaFactoryWrapper {
             metadata.map(JsonSchemaMetadata::description).filter(isNotEmpty()).ifPresent(schema::setDescription);
             metadata.map(JsonSchemaMetadata::defaultValue).filter(isNotEmpty()).ifPresent(simpleTypeSchema::setDefault);
 
+            additionalConstraintResolver.getTitleKey(prop).ifPresent(key -> this.lookupMessage(key, simpleTypeSchema::setTitle));
+            additionalConstraintResolver.getDescriptionKey(prop).ifPresent(key -> this.lookupMessage(key, simpleTypeSchema::setDescription));
+
             // Put the order in the ID so we can post-process the object in {@link #finalSchema} and order the properties.
             final Integer order = metadata.map(JsonSchemaMetadata::order).orElse(JsonSchemaMetadata.MAX_ORDER);
             schema.setId(String.format("order:%03d_%s", order, prop.getName()));
@@ -228,6 +240,21 @@ public class SuperSchemaFactoryWrapper extends SchemaFactoryWrapper {
         additionalConstraintResolver.getNotNull(prop).ifPresent(schema::setRequired);
 
         return schema;
+    }
+
+    /**
+     * Lookup key in messages for current {@link java.util.Locale} and if found apply the result to <code>target</code>
+     * @param key message key
+     * @param target consumer that will be supplied with the message lookup result if found
+     */
+    private void lookupMessage(String key, Consumer<String> target) {
+        try {
+            String translated = messageSource.getMessage(key, null, LocaleContextHolder.getLocale());
+            target.accept(translated);
+        }
+        catch (NoSuchMessageException e) {
+            log.trace("No message found for key: {} for locale {}", key, LocaleContextHolder.getLocale());
+        }
     }
 
     void addEnumConstraints(ValueTypeSchema schema, BeanProperty prop) {

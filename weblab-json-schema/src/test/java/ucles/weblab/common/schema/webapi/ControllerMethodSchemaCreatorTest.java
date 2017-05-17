@@ -2,10 +2,11 @@ package ucles.weblab.common.schema.webapi;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatTypes;
-import com.fasterxml.jackson.module.jsonSchema.*;
 import com.fasterxml.jackson.module.jsonSchema.types.ObjectSchema;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.context.MessageSource;
+import org.springframework.context.support.StaticMessageSource;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -32,7 +33,8 @@ public class ControllerMethodSchemaCreatorTest {
     private final CrossContextConversionService crossContextConversionService = mock(CrossContextConversionService.class);
     private final EnumSchemaCreator enumSchemaCreator = mock(EnumSchemaCreator.class);
     private final ObjectMapper objectMapper = new ObjectMapper();
-    private ControllerMethodSchemaCreator schemaCreator = new ControllerMethodSchemaCreator(objectMapper, crossContextConversionService, enumSchemaCreator);
+    private final MessageSource messageSource = new StaticMessageSource();
+    private ControllerMethodSchemaCreator schemaCreator = new ControllerMethodSchemaCreator(objectMapper, crossContextConversionService, enumSchemaCreator, messageSource);
 
     @Before
     public void setUp() {

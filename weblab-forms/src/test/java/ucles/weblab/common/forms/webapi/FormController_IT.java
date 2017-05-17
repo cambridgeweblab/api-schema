@@ -23,6 +23,7 @@ import org.springframework.boot.autoconfigure.data.mongo.MongoDataAutoConfigurat
 import org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration;
 import org.springframework.boot.autoconfigure.security.SecurityAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -104,8 +105,7 @@ public class FormController_IT extends AbstractRestController_IT {
 
         @Bean
         CrossContextConversionService crossContextConversionService() {
-            CrossContextConversionServiceImpl crossContextConversionService = new CrossContextConversionServiceImpl();
-            return crossContextConversionService;
+            return new CrossContextConversionServiceImpl();
         }
 
         @Bean
@@ -122,13 +122,15 @@ public class FormController_IT extends AbstractRestController_IT {
         public ResourceSchemaCreator resourceSchemaCreator(SecurityChecker securityChecker,
                                                            CrossContextConversionService crossContextConversionService,
                                                            EnumSchemaCreator enumSchemaCreator,
-                                                           JsonSchemaFactory jsonSchemaFactory) {
+                                                           JsonSchemaFactory jsonSchemaFactory,
+                                                           MessageSource messageSource) {
 
             return new ResourceSchemaCreator(securityChecker,
                                             new ObjectMapper(),
                                             crossContextConversionService,
                                             enumSchemaCreator,
-                                            jsonSchemaFactory);
+                                            jsonSchemaFactory,
+                                            messageSource);
         }
 
         @Bean
@@ -144,8 +146,10 @@ public class FormController_IT extends AbstractRestController_IT {
         @Bean
         ControllerMethodSchemaCreator controllerMethodSchemaCreator(ObjectMapper objectMapper,
                                                                     CrossContextConversionService crossContextConversionService,
-                                                                    EnumSchemaCreator enumSchemaCreator) {
-            return new ControllerMethodSchemaCreator(objectMapper, crossContextConversionService, enumSchemaCreator);
+                                                                    EnumSchemaCreator enumSchemaCreator,
+                                                                    MessageSource messageSource) {
+            return new ControllerMethodSchemaCreator(objectMapper, crossContextConversionService, enumSchemaCreator,
+                    messageSource);
         }
 
         @Bean
