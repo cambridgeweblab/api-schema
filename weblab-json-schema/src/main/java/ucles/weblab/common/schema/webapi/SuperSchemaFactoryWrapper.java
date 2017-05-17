@@ -15,7 +15,6 @@ import com.fasterxml.jackson.module.jsonSchema.factories.SchemaFactoryWrapper;
 import com.fasterxml.jackson.module.jsonSchema.factories.VisitorContext;
 import com.fasterxml.jackson.module.jsonSchema.factories.WrapperFactory;
 import com.fasterxml.jackson.module.jsonSchema.types.ArraySchema;
-import com.fasterxml.jackson.module.jsonSchema.types.HyperSchema;
 import com.fasterxml.jackson.module.jsonSchema.types.NumberSchema;
 import com.fasterxml.jackson.module.jsonSchema.types.ObjectSchema;
 import com.fasterxml.jackson.module.jsonSchema.types.SimpleTypeSchema;
@@ -56,23 +55,22 @@ public class SuperSchemaFactoryWrapper extends SchemaFactoryWrapper {
     private final CrossContextConversionService crossContextConversionService;
     private final EnumSchemaCreator enumSchemaCreator;
     private final ObjectMapper objectMapper;
-    private final StandardEvaluationContext evaluationContext;
-    
+
     private static class SuperSchemaFactoryWrapperFactory extends WrapperFactory {
         private final CrossContextConversionService crossContextConversionService;
         private final EnumSchemaCreator enumSchemaCreator;
         private final ObjectMapper objectMapper;
         private final StandardEvaluationContext evaluationContext;
-        
-        private SuperSchemaFactoryWrapperFactory(CrossContextConversionService crossContextConversionService, 
-                                                 EnumSchemaCreator enumSchemaCreator, 
+
+        private SuperSchemaFactoryWrapperFactory(CrossContextConversionService crossContextConversionService,
+                                                 EnumSchemaCreator enumSchemaCreator,
                                                  ObjectMapper objectMapper,
                                                  StandardEvaluationContext evaluationContext) {
             this.crossContextConversionService = crossContextConversionService;
             this.enumSchemaCreator = enumSchemaCreator;
             this.objectMapper = objectMapper;
             this.evaluationContext = evaluationContext;
-            
+
         }
 
         @Override
@@ -157,15 +155,14 @@ public class SuperSchemaFactoryWrapper extends SchemaFactoryWrapper {
         }
     }
 
-    public SuperSchemaFactoryWrapper(CrossContextConversionService crossContextConversionService, 
-                                     EnumSchemaCreator enumSchemaCreator, 
-                                     ObjectMapper objectMapper, 
+    public SuperSchemaFactoryWrapper(CrossContextConversionService crossContextConversionService,
+                                     EnumSchemaCreator enumSchemaCreator,
+                                     ObjectMapper objectMapper,
                                      StandardEvaluationContext evaluationContext) {
         super(new SuperSchemaFactoryWrapperFactory(crossContextConversionService, enumSchemaCreator, objectMapper, evaluationContext));
         this.crossContextConversionService = crossContextConversionService;
         this.enumSchemaCreator = enumSchemaCreator;
         this.objectMapper = objectMapper;
-        this.evaluationContext = evaluationContext;
         this.additionalConstraintResolver = new AdditionalConstraintResolver(evaluationContext);
     }
 
@@ -227,7 +224,7 @@ public class SuperSchemaFactoryWrapper extends SchemaFactoryWrapper {
         }
 
         additionalConstraintResolver.getReadOnly(prop).ifPresent(schema::setReadonly);
-        additionalConstraintResolver.getReadOnlyExpression(prop).ifPresent(schema::setReadonly);        
+        additionalConstraintResolver.getReadOnlyExpression(prop).ifPresent(schema::setReadonly);
         additionalConstraintResolver.getNotNull(prop).ifPresent(schema::setRequired);
 
         return schema;

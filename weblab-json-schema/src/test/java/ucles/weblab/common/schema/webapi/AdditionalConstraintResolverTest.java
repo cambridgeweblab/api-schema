@@ -1,7 +1,6 @@
 package ucles.weblab.common.schema.webapi;
 
 import com.fasterxml.jackson.databind.BeanProperty;
-import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonValueFormat;
 import java.net.URI;
 import org.hamcrest.Matchers;
@@ -26,6 +25,7 @@ import static org.mockito.Mockito.when;
  */
 public class AdditionalConstraintResolverTest {
     private AdditionalConstraintResolver additionalConstraintResolver;
+    @SuppressWarnings("unused")
     static class DummyBean {
         @JsonSchema(format = "loopy")
         private String loopyField;
@@ -51,24 +51,24 @@ public class AdditionalConstraintResolverTest {
 
         @JsonSchema(readOnlyExpression = "#{100 < 500}")
         private String numberField;
-        
+
         @JsonSchema(readOnlyExpression = "#{#currentUsername == 'peterpan'}")
         private String userField;
-        
+
         @JsonSchema(enumRef = "urn:xc:i18n:countries:$isoCodes")
         private String enumRefField;
-        
+
         @JsonSchema(mediaType = "text/html")
         private String someFileString;
-        
+
         public String getEnumRefField() {
             return enumRefField;
         }
-        
+
         public String getUserField() {
             return userField;
         }
-        
+
         public String getLoopyField() {
             return loopyField;
         }
@@ -88,29 +88,27 @@ public class AdditionalConstraintResolverTest {
         public String getFruityField() {
             return fruityField;
         }
-        
+
         public String getNumberField() {
             return numberField;
         }
-        
+
         public String getSomeFileString() {
             return someFileString;
         }
     }
-    
+
     @Before
     public void setup() {
         //put something on the context to test the readonlyexpression annotation value
         StandardEvaluationContext context = new StandardEvaluationContext();
         context.setVariable("currentUsername", "peterpan");
         additionalConstraintResolver = new AdditionalConstraintResolver(context);
-
     }
 
     @Test
     public void whenNewCustomFormatSpecifiedThenValueBehavesLikeEnum() throws NoSuchFieldException {
         BeanProperty prop = Mockito.mock(BeanProperty.class);
-        SerializerProvider provider = Mockito.mock(SerializerProvider.class);
         JsonSchema annotation = DummyBean.class.getDeclaredField("loopyField").getAnnotation(JsonSchema.class);
 
         when(prop.getAnnotation(JsonSchema.class)).thenReturn(annotation);
@@ -154,7 +152,7 @@ public class AdditionalConstraintResolverTest {
             assertEquals("Expect " + enumConstant.value() + " constant to have title", enumConstant.title(), map.get(enumConstant.value()));
         }
     }
-    
+
     @Test
     public void testReadOnlyExpressionAttribute() throws NoSuchFieldException {
         BeanProperty prop = Mockito.mock(BeanProperty.class);
@@ -165,9 +163,9 @@ public class AdditionalConstraintResolverTest {
         Optional<Boolean> readOnlyExpression = additionalConstraintResolver.getReadOnlyExpression(prop);
         assertNotNull(readOnlyExpression.get());
         assertTrue("Readonly expression is not true", readOnlyExpression.get());
-        
+
     }
-      
+
     @Test
     public void testReadOnlyExpressionAttributeWithContext() throws NoSuchFieldException {
         BeanProperty prop = Mockito.mock(BeanProperty.class);
@@ -178,11 +176,10 @@ public class AdditionalConstraintResolverTest {
         Optional<Boolean> readOnlyExpression = additionalConstraintResolver.getReadOnlyExpression(prop);
         assertNotNull(readOnlyExpression.get());
         assertTrue("Readonly expression is not true", readOnlyExpression.get());
-        
     }
-    
+
     @Test
-    public void testEnufRef() throws NoSuchFieldException {
+    public void testEnumRef() throws NoSuchFieldException {
         BeanProperty prop = Mockito.mock(BeanProperty.class);
         JsonSchema annotation = DummyBean.class.getDeclaredField("enumRefField").getAnnotation(JsonSchema.class);
 
@@ -190,10 +187,8 @@ public class AdditionalConstraintResolverTest {
 
         Optional<URI> uri = additionalConstraintResolver.getEnumRef(prop);
         assertNotNull(uri);
-        
-        
     }
-    
+
     @Test
     public void testGetMediaType() throws Exception {
         BeanProperty prop = Mockito.mock(BeanProperty.class);
@@ -203,12 +198,11 @@ public class AdditionalConstraintResolverTest {
         Optional<String> mediaType = additionalConstraintResolver.getMediaType(prop);
         assertNotNull(mediaType);
         assertEquals("text/html", mediaType.get());
-        
+
         //check any other one
         JsonSchema annotationEnumRef = DummyBean.class.getDeclaredField("enumRefField").getAnnotation(JsonSchema.class);
         when(prop.getAnnotation(JsonSchema.class)).thenReturn(annotationEnumRef);
         mediaType = additionalConstraintResolver.getMediaType(prop);
         assertTrue(!mediaType.isPresent());
-        
     }
 }

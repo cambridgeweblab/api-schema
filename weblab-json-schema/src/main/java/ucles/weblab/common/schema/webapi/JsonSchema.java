@@ -29,9 +29,7 @@ public @interface JsonSchema {
     boolean readOnly() default false;
 
     /**
-     * Set a readonly property to true if the value of this expression evaluates to true. 
-     * 
-     * @return 
+     * Set a readonly property to true if the value of this expression evaluates to true.
      */
     String readOnlyExpression() default "";
 
@@ -39,7 +37,7 @@ public @interface JsonSchema {
      * This property defines the media type if exists
      */
     String mediaType() default "";
-    
+
     /**
      * Defines a fixed set of constant enum values for this property.
      * Only one of {@code enumValues} and {@link #enumRef()} should be specified otherwise behaviour is undefined.

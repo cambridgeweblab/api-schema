@@ -10,8 +10,6 @@ import org.springframework.expression.ExpressionException;
 import org.springframework.expression.common.TemplateParserContext;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.net.URI;
 import java.util.Arrays;
@@ -27,15 +25,16 @@ import javax.validation.constraints.NotNull;
  * Catches the stuff that {@link ValidationConstraintResolver} doesn't.
  * In particular, it doesn't distringuish between inclusive and exclusive numeric constraints.
  */
+@SuppressWarnings("WeakerAccess")
 class AdditionalConstraintResolver {
     private Logger log = LoggerFactory.getLogger(getClass());
 
     private final StandardEvaluationContext evalContext;
-    
+
     public AdditionalConstraintResolver(StandardEvaluationContext evalContext) {
         this.evalContext = evalContext;
     }
-    
+
     public Optional<Boolean> getNumberExclusiveMinimum(BeanProperty prop) {
         DecimalMin decimalMinAnnotation = prop.getAnnotation(DecimalMin.class);
         return Optional.ofNullable(decimalMinAnnotation).map(an -> !an.inclusive());
@@ -49,20 +48,14 @@ class AdditionalConstraintResolver {
     public Optional<JsonValueFormat> getValueFormat(final BeanProperty prop) {
         JsonSchema jsonSchemaAnnotation = prop.getAnnotation(JsonSchema.class);
         return Optional.ofNullable(jsonSchemaAnnotation)
-                .map(an -> {
-                    if (!an.format().isEmpty()) {
-                        return JsonValueFormat.valueOf(an.format());
-                    } else {
-                        return null;
-                    }
-                });
+                .map(an -> an.format().isEmpty() ? null : JsonValueFormat.valueOf(an.format()));
     }
 
     public Optional<Boolean> getReadOnly(BeanProperty prop) {
         JsonSchema jsonSchemaAnnotation = prop.getAnnotation(JsonSchema.class);
         return Optional.ofNullable(jsonSchemaAnnotation).map(an -> an.readOnly() ? Boolean.TRUE : null);
     }
-    
+
     public Optional<Boolean> getNotNull(BeanProperty prop) {
         NotNull notNullAnnotation = prop.getAnnotation(NotNull.class);
         return Optional.ofNullable(notNullAnnotation).map(n -> true);
@@ -94,13 +87,9 @@ class AdditionalConstraintResolver {
                 .map(an -> {
                     if (!an.enumRef().isEmpty()) {
                         try {
-                            final Expression expression = new SpelExpressionParser().parseExpression(an.enumRef(), new TemplateParserContext());                            
+                            final Expression expression = new SpelExpressionParser().parseExpression(an.enumRef(), new TemplateParserContext());
                             String value = expression.getValue(evalContext, String.class);
-                            if (value != null) {
-                                return URI.create(value);
-                            } else {
-                                return null;
-                            }
+                            return value == null ? null : URI.create(value);
                         } catch (ExpressionException e) {
                             log.warn("Ignoring unprocessable enumRef expression: " + an.enumRef(), e);
                         }
@@ -108,52 +97,34 @@ class AdditionalConstraintResolver {
                     return null;
                 });
     }
-    
+
     /**
-     * Evaluate the read only expression and return an Optional boolean of the result. 
-     * 
-     * @param prop
-     * @return 
+     * Evaluate the read only expression and return an Optional boolean of the result.
      */
-    public Optional<Boolean> getReadOnlyExpression(BeanProperty prop) {                  
+    public Optional<Boolean> getReadOnlyExpression(BeanProperty prop) {
         JsonSchema jsonSchemaAnnotation = prop.getAnnotation(JsonSchema.class);
         return Optional.ofNullable(jsonSchemaAnnotation)
                 .map(an -> {
                     if (!an.readOnlyExpression().isEmpty()) {
                         try {
                             final Expression expression = new SpelExpressionParser().parseExpression(an.readOnlyExpression(), new TemplateParserContext());
-                                                       
-                            Boolean value = expression.getValue(evalContext, Boolean.class);
-                            return value;
+
+                            return expression.getValue(evalContext, Boolean.class);
                         } catch (ExpressionException e) {
                             log.warn("Ignoring unprocessable readOnlyExpression: " + an.readOnlyExpression(), e);
                         }
                     }
                     return null;
                 });
-    
     }
-    
+
     /**
-     * Gets the media type from the annotation 
-     * 
-     * @param prop 
+     * Gets the media type from the annotation
      */
     public Optional<String> getMediaType(BeanProperty prop) {
         JsonSchema jsonSchemaAnnotation = prop.getAnnotation(JsonSchema.class);
-        
+
         return Optional.ofNullable(jsonSchemaAnnotation)
-                .map(an -> {
-                    if (!an.mediaType().isEmpty()) {
-                        try {
-                            String mediaType = jsonSchemaAnnotation.mediaType();
-                            return mediaType;
-                        } catch (ExpressionException e) {
-                            log.warn("Ignoring unprocessable readOnlyExpression: " + an.readOnlyExpression(), e);
-                        }
-                    }
-                    return null;
-                });
-                
+                .map(an -> an.mediaType().isEmpty() ? null : jsonSchemaAnnotation.mediaType());
     }
 }

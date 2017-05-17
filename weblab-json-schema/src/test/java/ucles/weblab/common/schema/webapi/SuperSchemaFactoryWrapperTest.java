@@ -45,24 +45,25 @@ import static org.mockito.Mockito.when;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class SuperSchemaFactoryWrapperTest {
-    final JsonSchemaFactory schemaFactory = new JsonSchemaFactory();
-    final ObjectMapper objectMapper = new ObjectMapper();
+    private final JsonSchemaFactory schemaFactory = new JsonSchemaFactory();
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Mock
-    CrossContextConversionService crossContextConversionService;
+    private CrossContextConversionService crossContextConversionService;
     @Mock
-    EnumSchemaCreator enumSchemaCreator;
-    SuperSchemaFactoryWrapper superSchemaFactoryWrapper;
+    private EnumSchemaCreator enumSchemaCreator;
+    private SuperSchemaFactoryWrapper superSchemaFactoryWrapper;
 
-    
+
     @Before
     public void init() {
-        superSchemaFactoryWrapper = new SuperSchemaFactoryWrapper(crossContextConversionService, 
-                                                                  enumSchemaCreator, 
-                                                                  objectMapper, 
+        superSchemaFactoryWrapper = new SuperSchemaFactoryWrapper(crossContextConversionService,
+                                                                  enumSchemaCreator,
+                                                                  objectMapper,
                                                                   new StandardEvaluationContext());
     }
 
+    @SuppressWarnings("unused")
     static class DummyBean {
         @JsonSchema(enumValues = {
                 @EnumConstant("strawberry"),
