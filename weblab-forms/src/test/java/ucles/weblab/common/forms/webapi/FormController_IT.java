@@ -10,7 +10,6 @@ import java.util.Arrays;
 import java.util.concurrent.CompletableFuture;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -23,8 +22,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.data.mongo.MongoDataAutoConfiguration;
 import org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration;
 import org.springframework.boot.autoconfigure.security.SecurityAutoConfiguration;
-import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.boot.test.WebIntegrationTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -49,7 +47,6 @@ import ucles.weblab.common.schema.webapi.EnumSchemaCreator;
 import ucles.weblab.common.schema.webapi.ResourceSchemaCreator;
 import ucles.weblab.common.security.SecurityChecker;
 import ucles.weblab.common.test.webapi.AbstractRestController_IT;
-import ucles.weblab.common.webapi.exception.ResourceNotFoundException;
 import ucles.weblab.common.xc.service.CrossContextConversionService;
 import ucles.weblab.common.xc.service.CrossContextConversionServiceImpl;
 import ucles.weblab.common.xc.service.CrossContextConverter;
@@ -70,8 +67,7 @@ import static ucles.weblab.common.schema.webapi.SchemaMediaTypes.APPLICATION_SCH
  * @author Sukhraj
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration
-@WebIntegrationTest(value = "classpath:/public", randomPort = true)
+@SpringBootTest(value = "classpath:/public", webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 //@Transactional
 public class FormController_IT extends AbstractRestController_IT {
 
