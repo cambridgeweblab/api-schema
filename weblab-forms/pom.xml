@@ -5,7 +5,7 @@
     <parent>
         <artifactId>weblab-common-java</artifactId>
         <groupId>ucles.weblab</groupId>
-        <version>0.4-SNAPSHOT</version>
+        <version>0.5-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -40,15 +40,15 @@
         <dependency>
             <groupId>ucles.weblab</groupId>
             <artifactId>weblab-common</artifactId>
-        </dependency>       
+        </dependency>
         <dependency>
             <groupId>ucles.weblab</groupId>
-            <artifactId>weblab-json-schema</artifactId>            
-        </dependency>        
+            <artifactId>weblab-json-schema</artifactId>
+        </dependency>
         <dependency>
             <groupId>ucles.weblab</groupId>
-            <artifactId>weblab-cross-context</artifactId>            
-        </dependency>      
+            <artifactId>weblab-cross-context</artifactId>
+        </dependency>
         <!--Spring -->
         <dependency>
             <groupId>org.springframework.data</groupId>
@@ -70,7 +70,7 @@
             <artifactId>spring-hateoas</artifactId>
             <optional>true</optional>
         </dependency>
-        
+
         <!--jackson -->
         <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
@@ -81,14 +81,14 @@
             <groupId>com.fasterxml.jackson.module</groupId>
             <artifactId>jackson-module-jsonSchema</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>net.rossillo.mvc.cache</groupId>
             <artifactId>spring-mvc-cache-control</artifactId>
             <!-- only used for annotations, so if we don't have it at runtime then it doesn't matter -->
             <optional>true</optional>
         </dependency>
-        
+
         <dependency>
             <groupId>org.immutables</groupId>
             <artifactId>value</artifactId>
@@ -96,7 +96,7 @@
             <scope>provided</scope>
         </dependency>
 
-        
+
         <!-- Test dependencies -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -113,7 +113,7 @@
             <artifactId>json-path</artifactId>
             <version>2.2.0</version>
             <scope>test</scope>
-        </dependency>        
+        </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>

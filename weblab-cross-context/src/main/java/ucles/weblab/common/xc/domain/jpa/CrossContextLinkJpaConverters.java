@@ -11,7 +11,7 @@ import javax.persistence.Converter;
 /**
  * JPA 2.1 converter to turn cross-context links into URNs for persistence.
  * To activate these converters, make sure your persistence provider detects it by including this class in the list of
- * mapped classes e.g. with the annotation property {@link org.springframework.boot.orm.jpa.EntityScan#basePackages()}.
+ * mapped classes e.g. with the annotation property {@link org.springframework.boot.autoconfigure.domain.EntityScan#basePackages()}.
  *
  * @since 06/10/15
  */

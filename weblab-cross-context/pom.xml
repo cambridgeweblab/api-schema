@@ -5,12 +5,12 @@
     <parent>
         <artifactId>weblab-common-java</artifactId>
         <groupId>ucles.weblab</groupId>
-        <version>0.4-SNAPSHOT</version>
+        <version>0.5-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>weblab-cross-context</artifactId>    
-    
+    <artifactId>weblab-cross-context</artifactId>
+
     <dependencies>
         <dependency>
             <groupId>ucles.weblab</groupId>
