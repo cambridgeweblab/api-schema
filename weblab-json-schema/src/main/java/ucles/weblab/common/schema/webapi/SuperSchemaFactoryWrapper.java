@@ -251,8 +251,7 @@ public class SuperSchemaFactoryWrapper extends SchemaFactoryWrapper {
         try {
             String translated = messageSource.getMessage(key, null, LocaleContextHolder.getLocale());
             target.accept(translated);
-        }
-        catch (NoSuchMessageException e) {
+        } catch (NoSuchMessageException e) {
             log.trace("No message found for key: {} for locale {}", key, LocaleContextHolder.getLocale());
         }
     }
