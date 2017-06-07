@@ -3,11 +3,6 @@ package ucles.weblab.common.forms.webapi;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.module.jsonSchema.factories.JsonSchemaFactory;
-import java.io.InputStream;
-import java.net.URI;
-import java.time.Instant;
-import java.util.Arrays;
-import java.util.concurrent.CompletableFuture;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -43,6 +38,8 @@ import ucles.weblab.common.forms.domain.FormFactory;
 import ucles.weblab.common.forms.domain.FormRepository;
 import ucles.weblab.common.forms.domain.mongo.FormFactoryMongo;
 import ucles.weblab.common.forms.domain.mongo.FormRepositoryMongo;
+import ucles.weblab.common.i18n.service.LocalisationService;
+import ucles.weblab.common.i18n.service.impl.LocalisationServiceImpl;
 import ucles.weblab.common.schema.webapi.ControllerMethodSchemaCreator;
 import ucles.weblab.common.schema.webapi.EnumSchemaCreator;
 import ucles.weblab.common.schema.webapi.ResourceSchemaCreator;
@@ -52,16 +49,16 @@ import ucles.weblab.common.xc.service.CrossContextConversionService;
 import ucles.weblab.common.xc.service.CrossContextConversionServiceImpl;
 import ucles.weblab.common.xc.service.CrossContextConverter;
 
+import java.io.InputStream;
+import java.net.URI;
+import java.time.Instant;
+import java.util.Arrays;
+import java.util.concurrent.CompletableFuture;
+
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static ucles.weblab.common.schema.webapi.SchemaMediaTypes.APPLICATION_SCHEMA_JSON_UTF8_VALUE;
 /**
  *
@@ -109,6 +106,11 @@ public class FormController_IT extends AbstractRestController_IT {
         }
 
         @Bean
+        LocalisationService localisationService(MessageSource messageSource) {
+            return new LocalisationServiceImpl(messageSource);
+        }
+
+        @Bean
         EnumSchemaCreator enumSchemaCreator(final JsonSchemaFactory schemaFactory) {
             return new EnumSchemaCreator();
         }
@@ -123,14 +125,14 @@ public class FormController_IT extends AbstractRestController_IT {
                                                            CrossContextConversionService crossContextConversionService,
                                                            EnumSchemaCreator enumSchemaCreator,
                                                            JsonSchemaFactory jsonSchemaFactory,
-                                                           MessageSource messageSource) {
+                                                           LocalisationService localisationService) {
 
             return new ResourceSchemaCreator(securityChecker,
                                             new ObjectMapper(),
                                             crossContextConversionService,
                                             enumSchemaCreator,
                                             jsonSchemaFactory,
-                                            messageSource);
+                                            localisationService);
         }
 
         @Bean
@@ -147,9 +149,9 @@ public class FormController_IT extends AbstractRestController_IT {
         ControllerMethodSchemaCreator controllerMethodSchemaCreator(ObjectMapper objectMapper,
                                                                     CrossContextConversionService crossContextConversionService,
                                                                     EnumSchemaCreator enumSchemaCreator,
-                                                                    MessageSource messageSource) {
+                                                                    LocalisationService localisationService) {
             return new ControllerMethodSchemaCreator(objectMapper, crossContextConversionService, enumSchemaCreator,
-                    messageSource);
+                    localisationService);
         }
 
         @Bean

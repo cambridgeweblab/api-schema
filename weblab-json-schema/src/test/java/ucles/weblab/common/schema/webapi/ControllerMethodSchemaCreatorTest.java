@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
+import ucles.weblab.common.i18n.service.LocalisationService;
 import ucles.weblab.common.xc.service.CrossContextConversionService;
 
 import java.security.Principal;
@@ -33,8 +34,8 @@ public class ControllerMethodSchemaCreatorTest {
     private final CrossContextConversionService crossContextConversionService = mock(CrossContextConversionService.class);
     private final EnumSchemaCreator enumSchemaCreator = mock(EnumSchemaCreator.class);
     private final ObjectMapper objectMapper = new ObjectMapper();
-    private final MessageSource messageSource = new StaticMessageSource();
-    private ControllerMethodSchemaCreator schemaCreator = new ControllerMethodSchemaCreator(objectMapper, crossContextConversionService, enumSchemaCreator, messageSource);
+    private final LocalisationService localisationService = mock(LocalisationService.class);
+    private ControllerMethodSchemaCreator schemaCreator = new ControllerMethodSchemaCreator(objectMapper, crossContextConversionService, enumSchemaCreator, localisationService);
 
     @Before
     public void setUp() {

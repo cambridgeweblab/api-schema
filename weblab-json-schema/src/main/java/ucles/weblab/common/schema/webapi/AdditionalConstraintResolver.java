@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonValueFormat;
 import com.fasterxml.jackson.module.jsonSchema.validation.ValidationConstraintResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.MessageSource;
 import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionException;
 import org.springframework.expression.common.TemplateParserContext;
@@ -32,7 +31,7 @@ class AdditionalConstraintResolver {
 
     private final StandardEvaluationContext evalContext;
 
-    public AdditionalConstraintResolver(StandardEvaluationContext evalContext, MessageSource messageSource) {
+    public AdditionalConstraintResolver(StandardEvaluationContext evalContext) {
         this.evalContext = evalContext;
     }
 

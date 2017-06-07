@@ -9,16 +9,13 @@ import org.mockito.Mockito;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import org.junit.Before;
-import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.context.support.StaticMessageSource;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 
-import static java.util.Locale.FRANCE;
 import static java.util.Locale.UK;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -110,7 +107,7 @@ public class AdditionalConstraintResolverTest {
         StandardEvaluationContext context = new StandardEvaluationContext();
         context.setVariable("currentUsername", "peterpan");
         StaticMessageSource messageSource = new StaticMessageSource();
-        additionalConstraintResolver = new AdditionalConstraintResolver(context, messageSource);
+        additionalConstraintResolver = new AdditionalConstraintResolver(context);
         LocaleContextHolder.setLocale(UK); // default
     }
 

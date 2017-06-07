@@ -11,6 +11,7 @@ import org.springframework.hateoas.core.DummyInvocationUtils;
 import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.springframework.http.HttpMethod;
 import org.springframework.util.Assert;
+import ucles.weblab.common.i18n.service.LocalisationService;
 import ucles.weblab.common.security.SecurityChecker;
 import ucles.weblab.common.xc.service.CrossContextConversionService;
 
@@ -41,20 +42,19 @@ public class ResourceSchemaCreator {
     private final CrossContextConversionService crossContextConversionService;
     private final EnumSchemaCreator enumSchemaCreator;
     private final JsonSchemaFactory schemaFactory;
-    private final MessageSource messageSource;
+    private final LocalisationService localisationService;
 
     public ResourceSchemaCreator(SecurityChecker securityChecker,
                                  ObjectMapper objectMapper,
                                  CrossContextConversionService crossContextConversionService,
                                  EnumSchemaCreator enumSchemaCreator,
-                                 JsonSchemaFactory schemaFactory,
-                                 MessageSource messageSource) {
+                                 JsonSchemaFactory schemaFactory, LocalisationService localisationService) {
         this.securityChecker = securityChecker;
         this.objectMapper = objectMapper;
         this.crossContextConversionService = crossContextConversionService;
         this.enumSchemaCreator = enumSchemaCreator;
         this.schemaFactory = schemaFactory;
-        this.messageSource = messageSource;
+        this.localisationService = localisationService;
     }
 
     /**
@@ -146,7 +146,7 @@ public class ResourceSchemaCreator {
             SchemaFactoryWrapper wrapper = new SuperSchemaFactoryWrapper(crossContextConversionService,
                                                                          enumSchemaCreator,
                                                                          objectMapper,
-                                                                         evaluationContext, messageSource);
+                                                                         evaluationContext, localisationService);
             objectMapper.acceptJsonFormatVisitor(objectMapper.constructType(resourceClass), wrapper);
             return wrapper.finalSchema();
         } catch (JsonMappingException e) {

@@ -17,6 +17,8 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.context.support.StaticMessageSource;
+import ucles.weblab.common.i18n.service.LocalisationService;
+import ucles.weblab.common.i18n.service.impl.LocalisationServiceImpl;
 import ucles.weblab.common.xc.service.CrossContextConversionService;
 
 import java.io.BufferedReader;
@@ -74,7 +76,7 @@ public class SuperSchemaFactoryWrapperTest {
                                                                   enumSchemaCreator,
                                                                   objectMapper,
                                                                   new StandardEvaluationContext(),
-                                                                  messageSource);
+                                                                  new LocalisationServiceImpl(messageSource));
         // save and later reset the locale so we don't leave it around for other tests using this thread
         savedLocale = LocaleContextHolder.getLocale();
     }
