@@ -24,7 +24,6 @@ import com.fasterxml.jackson.module.jsonSchema.validation.AnnotationConstraintRe
 import com.fasterxml.jackson.module.jsonSchema.validation.ValidationConstraintResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.MessageSource;
 import org.springframework.hateoas.Link;
 import ucles.weblab.common.i18n.service.LocalisationService;
 import ucles.weblab.common.xc.service.CrossContextConversionService;
@@ -222,11 +221,10 @@ public class SuperSchemaFactoryWrapper extends SchemaFactoryWrapper {
             final Optional<JsonSchemaMetadata> metadata = Optional.ofNullable(prop.getAnnotation(JsonSchemaMetadata.class));
 
             metadata.map(JsonSchemaMetadata::title).filter(isNotEmpty()).ifPresent(simpleTypeSchema::setTitle);
+            metadata.map(JsonSchemaMetadata::titleKey).filter(isNotEmpty()).ifPresent(key -> localisationService.ifMessagePresent(key, simpleTypeSchema::setTitle));
             metadata.map(JsonSchemaMetadata::description).filter(isNotEmpty()).ifPresent(schema::setDescription);
+            metadata.map(JsonSchemaMetadata::descriptionKey).filter(isNotEmpty()).ifPresent(key -> localisationService.ifMessagePresent(key, simpleTypeSchema::setDescription));
             metadata.map(JsonSchemaMetadata::defaultValue).filter(isNotEmpty()).ifPresent(simpleTypeSchema::setDefault);
-
-            additionalConstraintResolver.getTitleKey(prop).ifPresent(key -> localisationService.ifMessagePresent(key, simpleTypeSchema::setTitle));
-            additionalConstraintResolver.getDescriptionKey(prop).ifPresent(key -> localisationService.ifMessagePresent(key, simpleTypeSchema::setDescription));
 
             // Put the order in the ID so we can post-process the object in {@link #finalSchema} and order the properties.
             final Integer order = metadata.map(JsonSchemaMetadata::order).orElse(JsonSchemaMetadata.MAX_ORDER);

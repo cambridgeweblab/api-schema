@@ -127,16 +127,4 @@ class AdditionalConstraintResolver {
         return Optional.ofNullable(jsonSchemaAnnotation)
                 .map(an -> an.mediaType().isEmpty() ? null : jsonSchemaAnnotation.mediaType());
     }
-
-    public Optional<String> getTitleKey(final BeanProperty prop) {
-        JsonSchema jsonSchemaAnnotation = prop.getAnnotation(JsonSchema.class);
-        return Optional.ofNullable(jsonSchemaAnnotation)
-                .map(an -> an.titleKey().isEmpty() ? null : an.titleKey());
-    }
-
-    public Optional<String> getDescriptionKey(final BeanProperty prop) {
-        JsonSchema jsonSchemaAnnotation = prop.getAnnotation(JsonSchema.class);
-        return Optional.ofNullable(jsonSchemaAnnotation)
-                .map(an -> an.descriptionKey().isEmpty() ? null : an.descriptionKey());
-    }
 }

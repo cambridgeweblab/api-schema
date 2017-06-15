@@ -17,7 +17,6 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.context.support.StaticMessageSource;
-import ucles.weblab.common.i18n.service.LocalisationService;
 import ucles.weblab.common.i18n.service.impl.LocalisationServiceImpl;
 import ucles.weblab.common.xc.service.CrossContextConversionService;
 
@@ -106,9 +105,8 @@ public class SuperSchemaFactoryWrapperTest {
         })
         private String dirtyField;
 
-        @JsonSchemaMetadata(title = "User", description = "The current username")
-        @JsonSchema(titleKey = "user", descriptionKey = "user-description",
-                readOnlyExpression = "#{#currentUsername == 'peterpan'}")
+        @JsonSchemaMetadata(title = "User", description = "The current username", titleKey = "user", descriptionKey = "user-description")
+        @JsonSchema(readOnlyExpression = "#{#currentUsername == 'peterpan'}")
         private String userField;
 
         public String getPickyField() {
