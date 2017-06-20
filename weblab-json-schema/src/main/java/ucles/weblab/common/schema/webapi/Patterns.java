@@ -9,6 +9,8 @@ public class Patterns {
     /** Pragmatic partial-RFC5322 pattern from http://www.regular-expressions.info/email.html. Should be used case-insensitive. */
     public static final String EMAIL_PATTERN = "^[A-Za-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[A-Za-z0-9!#$%&'*+/=?^_`{|}~-]+)*@" +
             "(?:[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?\\.)+[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?$";
+    public static final String EMAIL_DOMAIN_PATTERN = "^[A-Za-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[A-Za-z0-9!#$%&'*+/=?^_`{|}~-]+)*" +
+            "(?:[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?\\.)+[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?$";
     /** 1-4 digit country code without '+' prefix, then a space and at least 5 other characters (Solomon & Cook Islands have 5 digit national numbers). */
     public static final String PHONE_PATTERN = "^\\d{1,4} +.{5,}$";
     /** IBAN is two letter country code plus two digit checksum plus up to 28 more alphanumeric chars, which might be grouped into 4s. */
