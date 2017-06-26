@@ -1,37 +1,22 @@
 package ucles.weblab.common.schema.webapi;
 
 import com.fasterxml.jackson.module.jsonSchema.JsonSchema;
-import com.fasterxml.jackson.module.jsonSchema.types.LinkDescriptionObject;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.ResourceSupport;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.web.bind.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.RequestMapping;
 import ucles.weblab.common.identity.domain.Belongs;
 import ucles.weblab.common.webapi.LinkRelation;
 
-import java.util.Arrays;
-
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
-import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 
 /**
- * Base class for controllers which provide a schema on "/$schema".
+ * Base class for controllers which provide a schema on "/$schema"m
  *
  * @since 05/01/16
  */
-public abstract class SchemaProvidingController<Self extends SchemaProvidingController> {
-    ResourceSchemaCreator schemaCreator;
-
-    @Autowired
-    void configureSchemaCreator(ResourceSchemaCreator schemaCreator) {
-        this.schemaCreator = schemaCreator;
-    }
-
-    public ResourceSchemaCreator getSchemaCreator() {
-        return schemaCreator;
-    }
+public abstract class SchemaProvidingController<Self extends SchemaProvidingController<Self>> extends SchemaCreatingController<Self> {
 
     @RequestMapping(value = "/$schema", method = GET, produces = SchemaMediaTypes.APPLICATION_SCHEMA_JSON_UTF8_VALUE)
     public abstract ResponseEntity<JsonSchema> describe(@AuthenticationPrincipal Belongs principal);
@@ -44,19 +29,4 @@ public abstract class SchemaProvidingController<Self extends SchemaProvidingCont
         }
     }
 
-    public Self self() {
-        //noinspection unchecked
-        return (Self) methodOn((Class) getClass());
-    }
-
-    /**
-     * Convenience function to update the links array in the schema with a copy of that array
-     * with link appended.
-     */
-    protected void addALink(JsonSchema schema, LinkDescriptionObject link) {
-        LinkDescriptionObject[] links = schema.asSimpleTypeSchema().getLinks();
-        LinkDescriptionObject[] copy = Arrays.copyOf(links, links.length + 1);
-        copy[links.length] = link;
-        schema.asSimpleTypeSchema().setLinks(copy);
-    }
 }
