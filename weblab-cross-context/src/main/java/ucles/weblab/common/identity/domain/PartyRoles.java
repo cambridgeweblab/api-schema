@@ -13,6 +13,10 @@ public final class PartyRoles {
      * Recognising Organisation to the system and create a user who can administer that organisation. */
     public static final String ROLE_BTS_ADMIN = "ROLE_BTS_ADMIN";
 
+    /** A role for people who are involved in technical support who are allowed to access support functions
+     * of the application such as being able to use ad-hoc query APIs to query data (in an audited manner) */
+    public static final String ROLE_APPLICATION_SUPPORT = "ROLE_APPLICATION_SUPPORT";
+
     private PartyRoles() { // Prevent instantiation
     }
 }
