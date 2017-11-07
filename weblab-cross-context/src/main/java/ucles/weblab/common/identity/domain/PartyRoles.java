@@ -17,6 +17,9 @@ public final class PartyRoles {
      * of the application such as being able to use ad-hoc query APIs to query data (in an audited manner) */
     public static final String ROLE_APPLICATION_SUPPORT = "ROLE_APPLICATION_SUPPORT";
 
+
+    public static final String ROLE_PARTNER_SUPPORT="ROLE_PARTNER_SUPPORT";
+
     private PartyRoles() { // Prevent instantiation
     }
 }
