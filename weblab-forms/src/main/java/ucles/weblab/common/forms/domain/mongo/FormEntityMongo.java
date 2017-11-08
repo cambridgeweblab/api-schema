@@ -17,7 +17,6 @@ import ucles.weblab.common.forms.domain.FormEntity;
 public class FormEntityMongo implements FormEntity, Persistable<String>{
 
     @Id
-    @Indexed(unique=true)
     private String id;
     
     private String name;
