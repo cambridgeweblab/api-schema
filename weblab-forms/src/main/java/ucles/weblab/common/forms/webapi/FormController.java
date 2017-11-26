@@ -1,34 +1,25 @@
 package ucles.weblab.common.forms.webapi;
 
 import com.fasterxml.jackson.module.jsonSchema.JsonSchema;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import javax.validation.Valid;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import ucles.weblab.common.schema.webapi.ControllerMethodSchemaCreator;
 import ucles.weblab.common.schema.webapi.JsonSchemaMetadata;
 import ucles.weblab.common.schema.webapi.SchemaMediaTypes;
 import ucles.weblab.common.webapi.resource.ResourceListWrapper;
 import ucles.weblab.common.xc.service.CrossContextMapping;
 
+import javax.validation.Valid;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-import static org.springframework.web.bind.annotation.RequestMethod.DELETE;
-import static org.springframework.web.bind.annotation.RequestMethod.GET;
-import static org.springframework.web.bind.annotation.RequestMethod.PUT;
+import static org.springframework.web.bind.annotation.RequestMethod.*;
 import static ucles.weblab.common.webapi.HateoasUtils.locationHeader;
 import static ucles.weblab.common.webapi.MoreMediaTypes.APPLICATION_JSON_UTF8_VALUE;
 
@@ -39,8 +30,6 @@ import static ucles.weblab.common.webapi.MoreMediaTypes.APPLICATION_JSON_UTF8_VA
 @RestController
 @RequestMapping("/api/forms")
 public class FormController extends FormSelfDescribingController<FormController, FormResource> {
-
-    private static final Logger log = LoggerFactory.getLogger(FormController.class);
 
     private final FormDelegate formDelegate;
 
@@ -53,7 +42,7 @@ public class FormController extends FormSelfDescribingController<FormController,
     }
 
     @RequestMapping(value = "/",
-                    method = RequestMethod.POST,
+                    method = POST,
                     consumes = APPLICATION_JSON_VALUE,
                     produces = APPLICATION_JSON_UTF8_VALUE)
     @Override

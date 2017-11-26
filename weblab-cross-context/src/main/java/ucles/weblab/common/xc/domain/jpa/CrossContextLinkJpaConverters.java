@@ -21,18 +21,18 @@ public class CrossContextLinkJpaConverters {
     public static class CrossContextLinkConverter implements AttributeConverter<CrossContextLink, String> {
         private final Logger logger = LoggerFactory.getLogger(getClass());
 
-        {
+        public CrossContextLinkConverter() {
             logger.info("Registered CrossContextLink converters with JPA.");
         }
 
         @Override
         public String convertToDatabaseColumn(CrossContextLink attribute) {
-            return attribute != null? attribute.asUrn().toString() : null;
+            return attribute == null ? null : attribute.asUrn().toString();
         }
 
         @Override
         public CrossContextLink convertToEntityAttribute(String dbData) {
-            return dbData != null? new CrossContextLink(URI.create(dbData)) : null;
+            return dbData == null ? null : new CrossContextLink(URI.create(dbData));
         }
     }
 }

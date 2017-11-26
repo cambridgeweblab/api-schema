@@ -16,7 +16,7 @@ import static org.springframework.web.bind.annotation.RequestMethod.GET;
  *
  * @since 05/01/16
  */
-public abstract class SchemaProvidingController<Self extends SchemaProvidingController<Self>> extends SchemaCreatingController<Self> {
+public abstract class SchemaProvidingController<C extends SchemaProvidingController<C>> extends SchemaCreatingController<C> {
 
     @RequestMapping(value = "/$schema", method = GET, produces = SchemaMediaTypes.APPLICATION_SCHEMA_JSON_UTF8_VALUE)
     public abstract ResponseEntity<JsonSchema> describe(@AuthenticationPrincipal Belongs principal);

@@ -5,7 +5,7 @@ package ucles.weblab.common.schema.webapi;
  *
  * @since 09/10/15
  */
-public class Patterns {
+public final class Patterns {
     /** Pragmatic partial-RFC5322 pattern from http://www.regular-expressions.info/email.html. Should be used case-insensitive. */
     public static final String EMAIL_PATTERN = "^[A-Za-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[A-Za-z0-9!#$%&'*+/=?^_`{|}~-]+)*@" +
             "(?:[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?\\.)+[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?$";

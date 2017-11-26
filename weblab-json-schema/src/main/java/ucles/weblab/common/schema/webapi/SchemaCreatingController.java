@@ -8,7 +8,7 @@ import java.util.Arrays;
 
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 
-public class SchemaCreatingController<Self extends SchemaCreatingController<Self>> {
+public class SchemaCreatingController<C extends SchemaCreatingController<C>> {
     ResourceSchemaCreator schemaCreator;
 
     @Autowired
@@ -20,9 +20,9 @@ public class SchemaCreatingController<Self extends SchemaCreatingController<Self
         return schemaCreator;
     }
 
-    public Self self() {
+    public C self() {
         //noinspection unchecked
-        return (Self) methodOn((Class) getClass());
+        return (C) methodOn((Class) getClass());
     }
 
     /**

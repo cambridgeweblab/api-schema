@@ -6,7 +6,7 @@ package ucles.weblab.common.schema.webapi;
  *
  * @since 22/10/15
  */
-public class MoreFormats {
+public final class MoreFormats {
     /**
      * Enums to be presented as radio buttons.
      */

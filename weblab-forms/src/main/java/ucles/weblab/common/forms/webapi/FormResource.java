@@ -56,8 +56,7 @@ public class FormResource extends ResourceSupport {
     private Instant validTo;
     
     
-    /*For hibernate and jackson instantiation*/
-    protected FormResource() {
+    protected FormResource() { // For Hibernate, Jackson
         
     }
     
@@ -129,10 +128,7 @@ public class FormResource extends ResourceSupport {
         }
 
         final FormResource other = (FormResource) obj;
-        if ((this.formId == null) ? (other.formId != null) : !this.formId.equals(other.formId)) {
-            return false;
-        }
-        return true;
+        return (this.formId == null) ? other.formId == null : this.formId.equals(other.formId);
     }
 
     @Override

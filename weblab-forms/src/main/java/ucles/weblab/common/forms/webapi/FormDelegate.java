@@ -24,6 +24,7 @@ import static java.util.stream.Collectors.toList;
 public class FormDelegate {
 
     private static final Logger log = LoggerFactory.getLogger(FormDelegate.class);
+    private static final String CONVERSION_ERROR = "Can not convert schema to a string";
 
     private final FormRepository formRepository;
     private final FormResourceAssembler formAssembler;
@@ -46,8 +47,8 @@ public class FormDelegate {
         try {
             stringValue = objectMapper.writeValueAsString(resource.getFormDefinition());
         } catch (JsonProcessingException ex) {
-            log.error("Can not convert schema to a string", ex);
-            throw new BadDataException("Can not convert schema to a string", null);
+            log.error(CONVERSION_ERROR, ex);
+            throw new BadDataException(CONVERSION_ERROR, null, ex);
         }
 
         Form vo = ImmutableForm.builder()
@@ -104,8 +105,8 @@ public class FormDelegate {
         try {
             stringValue = objectMapper.writeValueAsString(resource.getFormDefinition());
         } catch (JsonProcessingException ex) {
-            log.error("Can not convert schema to a string", ex);
-            throw new BadDataException("Can not convert schema to a string", null);
+            log.error(CONVERSION_ERROR, ex);
+            throw new BadDataException(CONVERSION_ERROR, null, ex);
         }
 
         exisitingFormEntity.setDescription(resource.getDescription());

@@ -1,14 +1,14 @@
 package ucles.weblab.common.forms.domain.mongo;
 
-import java.time.Instant;
-import java.util.List;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.domain.Persistable;
-import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import ucles.weblab.common.forms.domain.Form;
 import ucles.weblab.common.forms.domain.FormEntity;
+
+import java.time.Instant;
+import java.util.List;
 /**
  *
  * @author Sukhraj
@@ -28,10 +28,10 @@ public class FormEntityMongo implements FormEntity, Persistable<String>{
     private Instant validTo;
     
     @Transient
-    private boolean isNew;
+    private boolean unsaved;
     
-    @SuppressWarnings("UnusedDeclaration") // For Jackson
-    protected FormEntityMongo() {
+    @SuppressWarnings("UnusedDeclaration")
+    protected FormEntityMongo() { // For Jackson
     }
     
     public FormEntityMongo(Form vo) {
@@ -43,7 +43,7 @@ public class FormEntityMongo implements FormEntity, Persistable<String>{
         description = vo.getDescription();
         validFrom = vo.getValidFrom();
         validTo = vo.getValidTo();
-        isNew = true;
+        unsaved = true;
     }
     
     @Override
@@ -88,7 +88,7 @@ public class FormEntityMongo implements FormEntity, Persistable<String>{
     
     @Override
     public boolean isNew() {
-        return isNew;
+        return unsaved;
     }
 
     @Override

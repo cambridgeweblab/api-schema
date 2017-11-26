@@ -146,7 +146,19 @@ public class ControllerIntrospectingCrossContextConverter implements CrossContex
         // TODO: Support controller methods which take form posts with @RequestParam too
         for (int i = 0; i < parameters.length; i++) {
             MethodParameter parameter = parameters[i];
-            if (parameter.getParameterAnnotation(PathVariable.class) != null) {
+            if (parameter.getParameterAnnotation(PathVariable.class) == null) {
+                if (parameter.getParameterAnnotation(RequestBody.class) != null && ResourceSupport.class.isAssignableFrom(parameter.getParameterType())) {
+                    logger.debug("Skipping @RequestBody parameter " + i + " ");
+                } else if (parameter.getParameterAnnotation(org.springframework.security.web.bind.annotation.AuthenticationPrincipal.class) != null //Keep for backward compatibility
+                        || parameter.getParameterAnnotation(AuthenticationPrincipal.class) != null
+                        || Principal.class.isAssignableFrom(parameter.getParameterType())
+                        || Authentication.class.isAssignableFrom(parameter.getParameterType())) {
+                    logger.debug("Skipping security parameter " + i + " [" + parameter + "]");
+                } else if (parameter.getParameterAnnotation(RequestBody.class) == null || !ResourceSupport.class.isAssignableFrom(parameter.getParameterType())) {
+                    logger.error("Controller method " + method.toString() + " parameter " + i + " [" + parameter + "] is not a @PathVariable or a @RequestBody ResourceSupport");
+                    return null;
+                }
+            } else {
                 try {
                     if (parameter.getParameterType().isAssignableFrom(String.class)) {
                         arguments[i] = pathVariableValues.next();
@@ -157,16 +169,6 @@ public class ControllerIntrospectingCrossContextConverter implements CrossContex
                     logger.error("No path variable specified for parameter " + i + " [" + parameter + "]");
                     return null;
                 }
-            } else if (parameter.getParameterAnnotation(RequestBody.class) != null && ResourceSupport.class.isAssignableFrom(parameter.getParameterType())) {
-                logger.debug("Skipping @RequestBody parameter " + i + " ");
-            } else if (parameter.getParameterAnnotation(org.springframework.security.web.bind.annotation.AuthenticationPrincipal.class) != null //Keep for backward compatibility
-                    || parameter.getParameterAnnotation(AuthenticationPrincipal.class) != null
-                    || Principal.class.isAssignableFrom(parameter.getParameterType())
-                    || Authentication.class.isAssignableFrom(parameter.getParameterType())) {
-                logger.debug("Skipping security parameter " + i + " [" + parameter + "]");
-            } else if (parameter.getParameterAnnotation(RequestBody.class) == null || !ResourceSupport.class.isAssignableFrom(parameter.getParameterType())) {
-                logger.error("Controller method " + method.toString() + " parameter " + i + " [" + parameter + "] is not a @PathVariable or a @RequestBody ResourceSupport");
-                return null;
             }
         }
         return arguments;

@@ -2,12 +2,9 @@ package ucles.weblab.common.schema.webapi;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatTypes;
-import com.fasterxml.jackson.databind.jsonschema.JsonSerializableSchema;
 import com.fasterxml.jackson.module.jsonSchema.JsonSchema;
 import com.fasterxml.jackson.module.jsonSchema.JsonSchemaIdResolver;
 import com.fasterxml.jackson.module.jsonSchema.factories.JsonSchemaFactory;
@@ -15,7 +12,13 @@ import com.fasterxml.jackson.module.jsonSchema.types.SimpleTypeSchema;
 import com.fasterxml.jackson.module.jsonSchema.types.UnionTypeSchema;
 import com.fasterxml.jackson.module.jsonSchema.types.ValueTypeSchema;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
@@ -45,7 +48,7 @@ public class EnumSchemaCreator {
      * @param <T> the type of the source object
      * @return the enum schema
      */
-    public <T> com.fasterxml.jackson.module.jsonSchema.JsonSchema createEnum(Stream<T> sourceStream, Function<T, String> valueFn, Optional<Function<T, String>> nameFn, Optional<Function<T, String>> descriptionFn, Supplier<ValueTypeSchema> valueSchemaSupplier) {
+    public <T> JsonSchema createEnum(Stream<T> sourceStream, Function<T, String> valueFn, Optional<Function<T, String>> nameFn, Optional<Function<T, String>> descriptionFn, Supplier<ValueTypeSchema> valueSchemaSupplier) {
         JsonSchema jsonSchema;
         if (nameFn.isPresent() || descriptionFn.isPresent()) {
             jsonSchema = new NonBrokenUnionTypeSchema();

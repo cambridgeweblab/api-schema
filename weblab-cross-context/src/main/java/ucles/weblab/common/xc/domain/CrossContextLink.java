@@ -25,20 +25,17 @@ import static ucles.weblab.common.domain.ConfigurableEntitySupport.configureBean
 public class CrossContextLink implements Serializable {
     private final URI uri;
 
-    {
+    @Autowired
+    private transient CrossContextConversionService conversionService;
+
+    public CrossContextLink(URI uri) {
         configureBean(this);
+        this.uri = uri;
     }
 
     public Object readResolve() {
         configureBean(this);
         return this;
-    }
-
-    @Autowired
-    private transient CrossContextConversionService conversionService;
-
-    public CrossContextLink(URI uri) {
-        this.uri = uri;
     }
 
     @Autowired
@@ -56,8 +53,12 @@ public class CrossContextLink implements Serializable {
     
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         
         CrossContextLink that = (CrossContextLink) o;
         

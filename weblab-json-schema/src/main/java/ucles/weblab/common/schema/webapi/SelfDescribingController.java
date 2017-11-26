@@ -12,14 +12,14 @@ import java.util.Optional;
 /**
  * Base class for controllers which are automatically self-describing (i.e. can serve out their own schema based on a resource).
  *
- * @param <Self> type of controller
- * @param <Resource> type of resource managed by the controller
+ * @param <C> type of controller
+ * @param <R> type of resource managed by the controller
  * @since 07/10/15
  */
-public abstract class SelfDescribingController<Self extends SelfDescribingController<Self, Resource>, Resource>
-        extends SchemaProvidingController<Self> {
+public abstract class SelfDescribingController<C extends SelfDescribingController<C, R>, R>
+        extends SchemaProvidingController<C> {
 
-    private final Class<Resource> resourceClass;
+    private final Class<R> resourceClass;
     public SelfDescribingController() {
         this.resourceClass = (Class) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[1];
     }
@@ -36,7 +36,7 @@ public abstract class SelfDescribingController<Self extends SelfDescribingContro
         return ResponseEntity.ok(schema);
     }
 
-    abstract public ResourceListWrapper<Resource> list(String owner);
-    abstract public ResponseEntity<Resource> create(String owner, Resource data);
+    abstract public ResourceListWrapper<R> list(String owner);
+    abstract public ResponseEntity<R> create(String owner, R data);
 
 }

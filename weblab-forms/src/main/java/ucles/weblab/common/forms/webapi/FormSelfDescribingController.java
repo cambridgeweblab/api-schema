@@ -20,10 +20,10 @@ import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
  *
  * @author Sukhraj
  */
-public abstract class FormSelfDescribingController<Self extends FormSelfDescribingController<Self, Resource>, Resource>
-            extends SchemaProvidingController<Self> {
+public abstract class FormSelfDescribingController<C extends FormSelfDescribingController<C, R>, R>
+            extends SchemaProvidingController<C> {
 
-    private final Class<Resource> resourceClass;
+    private final Class<R> resourceClass;
     private final ControllerMethodSchemaCreator controllerMethodSchemaCreator;
     
     public FormSelfDescribingController(ControllerMethodSchemaCreator controllerMethodSchemaCreator) {
@@ -35,10 +35,8 @@ public abstract class FormSelfDescribingController<Self extends FormSelfDescribi
     public ResponseEntity<JsonSchema> describe(Belongs principal) {
         return describe(principal, null, null);
     }
-    
-    public ResponseEntity<JsonSchema> describe(@AuthenticationPrincipal Belongs principal, String businessName, String applicationName) {
-        final Optional<String> ownerHandle = Optional.ofNullable(principal).map(Belongs::getOwnerHandle);
 
+    public ResponseEntity<JsonSchema> describe(@AuthenticationPrincipal Belongs principal, String businessName, String applicationName) {
         // The ResourceSchemaCreator will only add these methods if you're permitted to access them, so we can pass them
         
         Object controllerListMethod = self().list(null, null);
@@ -58,8 +56,8 @@ public abstract class FormSelfDescribingController<Self extends FormSelfDescribi
         return ResponseEntity.ok(schema);
     }
 
-    abstract public ResourceListWrapper<Resource> list(String businessName, String applicationName);
-    abstract public ResponseEntity<Resource> create(Resource data);
+    abstract public ResourceListWrapper<R> list(String businessName, String applicationName);
+    abstract public ResponseEntity<R> create(R data);
 
     
 }

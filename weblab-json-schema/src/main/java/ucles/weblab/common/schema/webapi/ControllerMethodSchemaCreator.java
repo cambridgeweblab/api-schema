@@ -127,7 +127,7 @@ public class ControllerMethodSchemaCreator {
             JsonProperty jsonProperty = parameter.getAnnotation(JsonProperty.class);
             JsonPropertyDescription jsonPropertyDescription = parameter.getAnnotation(JsonPropertyDescription.class);
 
-            String name = requestParam != null? (!StringUtils.isEmpty(requestParam.value())? requestParam.value() : requestParam.name()) : parameter.getName();
+            String name = requestParam == null ? parameter.getName() : StringUtils.isEmpty(requestParam.value()) ? requestParam.name() : requestParam.value();
             boolean required = isRequired(requestParam, jsonProperty);
             String description = getDescription(jsonPropertyDescription);
             Integer index = getIndex(jsonProperty);
@@ -155,8 +155,8 @@ public class ControllerMethodSchemaCreator {
         }
 
         private boolean isRequired(RequestParam requestParam, JsonProperty jsonProperty) {
-            return (jsonProperty != null && jsonProperty.required())
-                    || (requestParam != null && requestParam.required() && requestParam.defaultValue().equals(ValueConstants.DEFAULT_NONE));
+            return jsonProperty != null && jsonProperty.required()
+                    || requestParam != null && requestParam.required() && requestParam.defaultValue().equals(ValueConstants.DEFAULT_NONE);
         }
 
         private String getDescription(JsonPropertyDescription jsonPropertyDescription) {
@@ -174,10 +174,12 @@ public class ControllerMethodSchemaCreator {
         }
 
         private String getDefaultValue(RequestParam requestParam, JsonProperty jsonProperty) {
-            if (jsonProperty != null && !jsonProperty.defaultValue().isEmpty()) {
+            if (jsonProperty == null || jsonProperty.defaultValue().isEmpty()) {
+                if (requestParam != null && !requestParam.defaultValue().equals(ValueConstants.DEFAULT_NONE)) {
+                    return requestParam.defaultValue();
+                }
+            } else {
                 return jsonProperty.defaultValue();
-            } else if (requestParam != null && !requestParam.defaultValue().equals(ValueConstants.DEFAULT_NONE)) {
-                return requestParam.defaultValue();
             }
             return null;
         }

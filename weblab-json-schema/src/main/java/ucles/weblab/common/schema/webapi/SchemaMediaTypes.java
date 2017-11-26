@@ -7,7 +7,7 @@ import org.springframework.http.MediaType;
  *
  * @since 07/10/15
  */
-public class SchemaMediaTypes {
+public final class SchemaMediaTypes {
     public static final String APPLICATION_SCHEMA_JSON_UTF8_VALUE = "application/schema+json;charset=UTF-8";
     public static final MediaType APPLICATION_SCHEMA_JSON_UTF8 = MediaType.valueOf(APPLICATION_SCHEMA_JSON_UTF8_VALUE);
 

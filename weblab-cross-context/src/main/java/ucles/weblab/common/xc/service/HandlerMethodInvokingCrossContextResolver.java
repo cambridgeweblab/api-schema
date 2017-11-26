@@ -56,12 +56,12 @@ public class HandlerMethodInvokingCrossContextResolver implements CrossContextRe
                     methodInvocation.getArgs()
             );
             if (result instanceof ResponseEntity) {
-                if (!((ResponseEntity) result).getStatusCode().is2xxSuccessful()) {
-                    logger.error("Method " + methodInvocation.getHandlerMethod().getMethod() + " returned an HTTP error " + ((ResponseEntity) result).getStatusCode());
-                    result = null;
-                } else {
+                if (((ResponseEntity) result).getStatusCode().is2xxSuccessful()) {
                     // unwrap
                     result = ((ResponseEntity) result).getBody();
+                } else {
+                    logger.error("Method " + methodInvocation.getHandlerMethod().getMethod() + " returned an HTTP error " + ((ResponseEntity) result).getStatusCode());
+                    result = null;
                 }
             }
             return result;

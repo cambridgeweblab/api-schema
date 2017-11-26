@@ -1,33 +1,24 @@
 package ucles.weblab.common.xc.service;
 
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.event.ContextRefreshedEvent;
+
 import java.net.URI;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.IntStream;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationListener;
-import org.springframework.context.event.ContextRefreshedEvent;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 /**
  *
  * @author Sukhraj
  */
 public class RestCrossContextConverter implements CrossContextConverter, ApplicationListener<ContextRefreshedEvent> {
-    
-    private Logger logger = LoggerFactory.getLogger(getClass());
 
     private final Map<String, URI> urnToUrls = new HashMap<>();
     private final Map<URI, String> urlToUrns = new HashMap<>();
 
-    private final RestSettings restSettings;    
-    
-    public RestCrossContextConverter(RestSettings restSettings) { 
-    
-        this.restSettings = restSettings;
+    public RestCrossContextConverter(RestSettings restSettings) {
+
         List<String> urns = restSettings.getUrns();
         List<String> urls = restSettings.getUrls();
         
@@ -45,13 +36,12 @@ public class RestCrossContextConverter implements CrossContextConverter, Applica
     @Override
     public URI toUrn(URI url) {
         String res = urlToUrns.get(url);
-        return res != null? URI.create(res) : null;
+        return res == null ? null : URI.create(res);
     }
 
     @Override
     public URI toUrl(URI urn) {
-        URI res = urnToUrls.get(urn.toString());
-        return res;
+        return urnToUrls.get(urn.toString());
     }
 
     @Override

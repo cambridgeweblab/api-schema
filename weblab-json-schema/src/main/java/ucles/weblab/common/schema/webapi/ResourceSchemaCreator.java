@@ -6,10 +6,13 @@ import com.fasterxml.jackson.module.jsonSchema.JsonSchema;
 import com.fasterxml.jackson.module.jsonSchema.factories.JsonSchemaFactory;
 import com.fasterxml.jackson.module.jsonSchema.factories.SchemaFactoryWrapper;
 import com.fasterxml.jackson.module.jsonSchema.types.LinkDescriptionObject;
-import org.springframework.context.MessageSource;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
+import org.springframework.hateoas.ResourceSupport;
 import org.springframework.hateoas.core.DummyInvocationUtils;
 import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.Assert;
 import ucles.weblab.common.i18n.service.LocalisationService;
 import ucles.weblab.common.security.SecurityChecker;
@@ -21,10 +24,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Stream;
-import org.springframework.expression.spel.support.StandardEvaluationContext;
-import org.springframework.hateoas.ResourceSupport;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 
 import static ucles.weblab.common.webapi.LinkRelation.CREATE;
 import static ucles.weblab.common.webapi.LinkRelation.INSTANCES;
@@ -168,7 +167,7 @@ public class ResourceSchemaCreator {
         jsonSchema.set$schema(HTTP_JSON_SCHEMA_ORG_DRAFT_03_SCHEMA);
 
         Optional<LinkDescriptionObject> instances = listControllerMethod
-                .map(m -> (m instanceof LinkDescriptionObject)? (LinkDescriptionObject) m : null);
+                .map(m -> m instanceof LinkDescriptionObject ? (LinkDescriptionObject) m : null);
         if (!instances.isPresent()) {
             instances = listControllerMethod
                     .flatMap(this::linkIfPermittedTo)
@@ -176,7 +175,7 @@ public class ResourceSchemaCreator {
         }
 
         Optional<LinkDescriptionObject> create = createControllerMethod
-                        .map(m -> (m instanceof LinkDescriptionObject) ? (LinkDescriptionObject) m : null);
+                        .map(m -> m instanceof LinkDescriptionObject ? (LinkDescriptionObject) m : null);
         if (!create.isPresent()) {
             create = createControllerMethod
                     .flatMap(this::linkIfPermittedTo)

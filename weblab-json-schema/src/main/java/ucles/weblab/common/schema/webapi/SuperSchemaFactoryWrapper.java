@@ -7,7 +7,6 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonArrayFormatVisitor;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
 import com.fasterxml.jackson.module.jsonSchema.JsonSchema;
 import com.fasterxml.jackson.module.jsonSchema.factories.ObjectVisitor;
@@ -65,7 +64,7 @@ public class SuperSchemaFactoryWrapper extends SchemaFactoryWrapper {
         private final StandardEvaluationContext evaluationContext;
         private final LocalisationService localisationService;
 
-        private SuperSchemaFactoryWrapperFactory(CrossContextConversionService crossContextConversionService,
+        SuperSchemaFactoryWrapperFactory(CrossContextConversionService crossContextConversionService,
                                                  EnumSchemaCreator enumSchemaCreator,
                                                  ObjectMapper objectMapper,
                                                  StandardEvaluationContext evaluationContext,
@@ -140,7 +139,7 @@ public class SuperSchemaFactoryWrapper extends SchemaFactoryWrapper {
         void processValidationConstraints(BeanProperty prop) {
             JsonSchema existingSchema = this.getPropertySchema(prop);
             JsonSchema updatedSchema = addValidationConstraints(existingSchema, prop);
-            if (updatedSchema != existingSchema) {
+            if (updatedSchema != existingSchema) { // NOPMD - genuinely want to know if it's the same instance
                 this.setPropertySchema(prop, updatedSchema);
             }
         }
@@ -149,8 +148,8 @@ public class SuperSchemaFactoryWrapper extends SchemaFactoryWrapper {
             if (writer.getType().isCollectionLikeType()) {
                 JavaType contentType = writer.getType().getContentType();
                 if (contentType.hasRawClass(Link.class) ||
-                        (contentType.getRawClass().getAnnotation(JsonSchemaIgnore.class) != null &&
-                                contentType.getRawClass().getAnnotation(JsonSchemaIgnore.class).value())) {
+                        contentType.getRawClass().getAnnotation(JsonSchemaIgnore.class) != null &&
+                                contentType.getRawClass().getAnnotation(JsonSchemaIgnore.class).value()) {
                     removePropertySchema(writer);
                     return true;
                 }
@@ -175,11 +174,6 @@ public class SuperSchemaFactoryWrapper extends SchemaFactoryWrapper {
     @Override
     public JsonObjectFormatVisitor expectObjectFormat(JavaType convertedType) {
         return new ObjectVisitorDecorator((ObjectVisitor) super.expectObjectFormat(convertedType));
-    }
-
-    @Override
-    public JsonArrayFormatVisitor expectArrayFormat(JavaType convertedType) {
-        return super.expectArrayFormat(convertedType);
     }
 
     JsonSchema addValidationConstraints(JsonSchema schema, BeanProperty prop) {
