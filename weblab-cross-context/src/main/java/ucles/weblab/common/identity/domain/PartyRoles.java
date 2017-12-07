@@ -17,8 +17,10 @@ public final class PartyRoles {
      * of the application such as being able to use ad-hoc query APIs to query data (in an audited manner) */
     public static final String ROLE_APPLICATION_SUPPORT = "ROLE_APPLICATION_SUPPORT";
 
-
-    public static final String ROLE_PARTNER_SUPPORT="ROLE_PARTNER_SUPPORT";
+    /** A role for people who are users of the system but can see some additional technical data for just the
+     * data they normally access.  For example in a results service, they can see the ids of the organisations
+     * a result is shared with when they search for result by its unique test number (e.g. TRF Number). */
+    public static final String ROLE_PARTNER_SUPPORT = "ROLE_PARTNER_SUPPORT";
 
     private PartyRoles() { // Prevent instantiation
     }
