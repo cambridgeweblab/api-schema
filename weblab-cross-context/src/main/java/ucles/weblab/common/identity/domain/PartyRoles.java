@@ -11,7 +11,7 @@ public final class PartyRoles {
 
     /** A role for non-technical management of the system, such as, in IELTS Results, being able to add a
      * Recognising Organisation to the system and create a user who can administer that organisation. */
-    public static final String ROLE_BTS_ADMIN = "ROLE_BTS_ADMIN";
+    public static final String ROLE_RO_MAINTENANCE = "ROLE_RO_MAINTENANCE";
 
     /** A role for people who are involved in technical support who are allowed to access support functions
      * of the application such as being able to use ad-hoc query APIs to query data (in an audited manner) */
