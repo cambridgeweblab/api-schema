@@ -13,9 +13,9 @@ import ucles.weblab.common.webapi.resource.ResourceListWrapper;
 import ucles.weblab.common.xc.service.CrossContextMapping;
 
 import javax.validation.Valid;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
@@ -32,13 +32,16 @@ import static ucles.weblab.common.webapi.MoreMediaTypes.APPLICATION_JSON_UTF8_VA
 public class FormController extends FormSelfDescribingController<FormController, FormResource> {
 
     private final FormDelegate formDelegate;
+    private final FormSettings formSettings;
 
     @Autowired
     public FormController(FormDelegate formDelegate,
+                          FormSettings formSettings,
                           ControllerMethodSchemaCreator controllerMethodSchemaCreator) {
 
         super(controllerMethodSchemaCreator);
         this.formDelegate = formDelegate;
+        this.formSettings = formSettings;
     }
 
     @RequestMapping(value = "/",
@@ -102,10 +105,10 @@ public class FormController extends FormSelfDescribingController<FormController,
             method = GET,
             produces = SchemaMediaTypes.APPLICATION_SCHEMA_JSON_UTF8_VALUE)
     public ResponseEntity<JsonSchema> businessstreams() {
+        List<BusinessStreamBean> businessStreams = formSettings.getBusinessStream().entrySet().stream()
+                .map(e -> new BusinessStreamBean(e.getKey(), e.getValue()))
+                .collect(Collectors.toList());
 
-        List<BusinessStreamBean> businessStreams = Arrays.asList(new BusinessStreamBean("CIE", "Cambridge International Examinations"),
-                                                             new BusinessStreamBean("OCR", "Oxford, Cambridge and RSA"),
-                                                             new BusinessStreamBean("CE", "Cambridge English Language Assessment"));
         final JsonSchema enumSchema = this.getSchemaCreator().createEnum(businessStreams,
                                                                         methodOn(FormController.class).businessstreams(),
                                                                         BusinessStreamBean::getAbbreviation,

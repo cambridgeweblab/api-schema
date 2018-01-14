@@ -17,6 +17,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.data.mongo.MongoDataAutoConfiguration;
 import org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration;
 import org.springframework.boot.autoconfigure.security.SecurityAutoConfiguration;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
@@ -86,6 +87,7 @@ public class FormController_IT extends AbstractRestController_IT {
     @EnableMongoRepositories(basePackageClasses = {FormRepositoryMongo.class})
     @Import({SecurityAutoConfiguration.class, MongoAutoConfiguration.class, MongoDataAutoConfiguration.class, PropertyPlaceholderAutoConfiguration.class})
     @ComponentScan(basePackageClasses = {FormController.class, FormDelegate.class})
+    @EnableConfigurationProperties
     @EnableAutoConfiguration
     public static class Config {
 
@@ -163,6 +165,10 @@ public class FormController_IT extends AbstractRestController_IT {
 
         }
 
+        @Bean
+        FormSettings formSettings() {
+            return new FormSettings();
+        }
 
     }
 
