@@ -110,7 +110,8 @@ public class ControllerIntrospectingCrossContextConverter implements CrossContex
     @Override
     public URI toUrl(URI urn) {
         return Optional.ofNullable(urnToHandlerMethodInvocation(urn))
-                .map(m -> MvcUriComponentsBuilder.fromMethod(m.getHandlerMethod().getMethod(), m.getArgs())
+                .map(m -> MvcUriComponentsBuilder.fromMethod(
+                        m.getHandlerMethod().getMethod().getDeclaringClass(), m.getHandlerMethod().getMethod(), m.getArgs())
                         .build().toUri())
                 .orElse(null);
     }
