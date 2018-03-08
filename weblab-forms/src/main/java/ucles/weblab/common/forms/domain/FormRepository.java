@@ -14,7 +14,9 @@ public interface FormRepository {
 
     <S extends FormEntity> S findOne(String id);
 
-    int deleteById(String id);
+    boolean existsById(String id);
+
+    void deleteById(String id);
 
     List<? extends FormEntity> findByBusinessStreamsContainingAndApplicationName(String businessStream, String applicationName);
 }

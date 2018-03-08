@@ -84,9 +84,10 @@ public class FormDelegate {
     }
 
     public void delete(String id) {
-        if (formRepository.deleteById(id) == 0) {
-            throw new ResourceNotFoundException(id);
+        if (formRepository.existsById(id)) {
+            formRepository.deleteById(id);
         }
+        throw new ResourceNotFoundException(id);
     }
 
     public List<FormResource> list(String businessStream, String applicationName) {
