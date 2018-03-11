@@ -15,11 +15,9 @@ build:
   ci:
     - mkdir -p shippable/testresults
     - mvn --batch-mode clean
-    # Only deploy master
-    - if [[ $BRANCH == "master" ]] && [[ $IS_PULL_REQUEST != true ]]; then mvn --batch-mode --update-snapshots -Pshippable deploy; fi
-    # Otherwise verify all other configs
-    - if [[ $BRANCH == "master" ]] && [[ $IS_PULL_REQUEST == true ]]; then mvn --batch-mode --update-snapshots -Pshippable verify; fi
-    - if [[ $BRANCH != "master" ]]; then mvn --batch-mode --update-snapshots -Pshippable verify; fi
+    # Only deploy for master & release-2.0.x, otherwise just verify for branches and PRs
+    - if [[ $BRANCH == "master" || $BRANCH == "release-2.0.x" ]] && [[ $IS_PULL_REQUEST != true ]]; then mvn --batch-mode --update-snapshots -Pshippable deploy; fi
+    - if [[ $BRANCH != "master" && $BRANCH != "release-2.0.x" ]] || [[ $IS_PULL_REQUEST != true ]]; then mvn --batch-mode --update-snapshots -Pshippable verify; fi
 
 integrations:
   notifications:
