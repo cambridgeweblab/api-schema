@@ -74,19 +74,17 @@ public class FormDelegate {
 
     public FormResource get(String id) {
 
-        FormEntity formEntity = formRepository.findOne(id);
-        if (formEntity == null) {
-            throw new ResourceNotFoundException(id);
-        }
+        FormEntity formEntity = formRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(id));
         FormResource resource = toResource(formEntity);
 
         return resource;
     }
 
     public void delete(String id) {
-        if (formRepository.deleteById(id) == 0) {
-            throw new ResourceNotFoundException(id);
+        if (formRepository.existsById(id)) {
+            formRepository.deleteById(id);
         }
+        throw new ResourceNotFoundException(id);
     }
 
     public List<FormResource> list(String businessStream, String applicationName) {
@@ -97,11 +95,9 @@ public class FormDelegate {
     }
 
     public FormResource update(FormResource resource) {
-        FormEntity exisitingFormEntity = formRepository.findOne(resource.getFormId());
-        if (exisitingFormEntity == null) {
-            throw new ResourceNotFoundException(resource.getFormId());
-        }
-        String stringValue = null;
+        FormEntity existingEntity = formRepository.findById(resource.getFormId())
+                .orElseThrow(() -> new ResourceNotFoundException(resource.getFormId()));
+        String stringValue;
         try {
             stringValue = objectMapper.writeValueAsString(resource.getFormDefinition());
         } catch (JsonProcessingException ex) {
@@ -109,16 +105,16 @@ public class FormDelegate {
             throw new BadDataException(CONVERSION_ERROR, null, ex);
         }
 
-        exisitingFormEntity.setDescription(resource.getDescription());
-        exisitingFormEntity.setName(resource.getName());
-        exisitingFormEntity.setApplicationName(resource.getApplicationName());
-        exisitingFormEntity.setBusinessStreams(resource.getBusinessStreams());
-        exisitingFormEntity.setDescription(resource.getDescription());
-        exisitingFormEntity.setSchema(stringValue);
-        exisitingFormEntity.setValidFrom(resource.getValidFrom());
-        exisitingFormEntity.setValidTo(resource.getValidTo());
+        existingEntity.setDescription(resource.getDescription());
+        existingEntity.setName(resource.getName());
+        existingEntity.setApplicationName(resource.getApplicationName());
+        existingEntity.setBusinessStreams(resource.getBusinessStreams());
+        existingEntity.setDescription(resource.getDescription());
+        existingEntity.setSchema(stringValue);
+        existingEntity.setValidFrom(resource.getValidFrom());
+        existingEntity.setValidTo(resource.getValidTo());
 
-        FormEntity saved = formRepository.save(exisitingFormEntity);
+        FormEntity saved = formRepository.save(existingEntity);
         FormResource savedResource = toResource(saved);
 
         return savedResource;
