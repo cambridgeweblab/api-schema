@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonValueFormat;
 import java.net.URI;
 import org.hamcrest.Matchers;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -27,6 +28,8 @@ import static org.mockito.Mockito.when;
  * @since 15/10/15
  */
 public class AdditionalConstraintResolverTest {
+
+    static private final String DATE_TIME_VALUE = JsonValueFormat.DATE_TIME.toString();
     private AdditionalConstraintResolver additionalConstraintResolver;
     @SuppressWarnings("unused")
     static class DummyBean {
@@ -112,6 +115,7 @@ public class AdditionalConstraintResolverTest {
     }
 
     @Test
+    @Ignore("This behaviour requires the CA branch that wasn't adopted upstream")
     public void whenNewCustomFormatSpecifiedThenValueBehavesLikeEnum() throws NoSuchFieldException {
         BeanProperty prop = Mockito.mock(BeanProperty.class);
         JsonSchema annotation = DummyBean.class.getDeclaredField("loopyField").getAnnotation(JsonSchema.class);
