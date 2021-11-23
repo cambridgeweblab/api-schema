@@ -55,8 +55,8 @@ public class EnumSchemaCreator {
             ValueTypeSchema[] elements = sourceStream
                     .map(r -> {
                         final ValueTypeSchema valueSchema = valueSchemaSupplier.get();
-                        nameFn.map(f -> f.apply(r)).ifPresent(valueSchema::setTitle);
-                        descriptionFn.map(f -> f.apply(r)).ifPresent(valueSchema::setDescription);
+                        nameFn.map(f -> f.apply(r)).ifPresent(title -> valueSchema.setTitle(title));
+                        descriptionFn.map(f -> f.apply(r)).ifPresent(description -> valueSchema.setDescription(description));
                         valueSchema.setEnums(Collections.singleton(valueFn.apply(r)));
                         return valueSchema;
                     }).toArray(ValueTypeSchema[]::new);

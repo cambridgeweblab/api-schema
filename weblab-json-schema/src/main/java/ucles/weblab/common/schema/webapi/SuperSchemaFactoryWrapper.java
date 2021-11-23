@@ -201,7 +201,8 @@ public class SuperSchemaFactoryWrapper extends SchemaFactoryWrapper {
             if (stringSchema.getPattern() == null) {
                 additionalConstraintResolver.getPattern(prop).ifPresent(stringSchema::setPattern);
             }
-            additionalConstraintResolver.getMediaType(prop).ifPresent(stringSchema::setMediaType);
+            // See cambridgeweblab/jackson-module-jsonSchema 2.9.4-CA branch
+//            additionalConstraintResolver.getMediaType(prop).ifPresent(stringSchema::setMediaType);
         }
 
         if (schema.isValueTypeSchema()) {

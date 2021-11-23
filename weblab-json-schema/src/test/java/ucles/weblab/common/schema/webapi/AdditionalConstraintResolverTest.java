@@ -39,7 +39,7 @@ public class AdditionalConstraintResolverTest {
         @JsonSchema(format = "squiggly")
         private String squigglyField;
 
-        @JsonSchema(format = JsonValueFormat.DATE_TIME_VALUE)
+        @JsonSchema(format = "date-time")
         private LocalDateTime temperamentalField;
 
         @JsonSchema(enumValues = {

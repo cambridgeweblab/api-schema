@@ -35,6 +35,7 @@ public @interface JsonSchema {
 
     /**
      * This property defines the media type if exists
+     * @deprecated This is ignored due to lack of support within Jackson
      */
     String mediaType() default "";
 
