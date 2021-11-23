@@ -40,18 +40,4 @@
         </repository>
     </distributionManagement>
 
-    <reporting>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-pmd-plugin</artifactId>
-                <version>3.7</version>
-                <configuration>
-                    <rulesets>
-                        <ruleset>lint/pmd-ruleset.xml</ruleset>
-                    </rulesets>
-                </configuration>
-            </plugin>
-        </plugins>
-    </reporting>
 </project>
