@@ -7,9 +7,11 @@ import com.fasterxml.jackson.module.jsonSchema.factories.JsonSchemaFactory;
 import com.fasterxml.jackson.module.jsonSchema.factories.SchemaFactoryWrapper;
 import com.fasterxml.jackson.module.jsonSchema.types.LinkDescriptionObject;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
-import org.springframework.hateoas.ResourceSupport;
-import org.springframework.hateoas.core.DummyInvocationUtils;
-import org.springframework.hateoas.mvc.ControllerLinkBuilder;
+import org.springframework.hateoas.RepresentationModel;
+import org.springframework.hateoas.server.core.DummyInvocationUtils;
+import org.springframework.hateoas.server.core.LastInvocationAware;
+import org.springframework.hateoas.server.core.MethodInvocation;
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -34,6 +36,7 @@ import static ucles.weblab.common.webapi.LinkRelation.INSTANCES;
  *
  * @since 05/10/15
  */
+@SuppressWarnings("OptionalUsedAsFieldOrParameterType")
 public class ResourceSchemaCreator {
     public static final String HTTP_JSON_SCHEMA_ORG_DRAFT_03_SCHEMA = "http://json-schema.org/draft-03/schema#";
     private final SecurityChecker securityChecker;
@@ -61,8 +64,8 @@ public class ResourceSchemaCreator {
      * constraints as well as {@link JsonSchema @JsonSchema} and {@link JsonSchemaMetadata @JsonSchemaMetadata}
      * to enrich the content of this schema object, otherwise it will simply be fields and types.
      * <p>
-     * The {@code Object} method references passed here are {@link org.springframework.hateoas.core.DummyInvocationUtils.LastInvocationAware}
-     * objects obtained from Spring HATEOAS with {@link ControllerLinkBuilder#methodOn(Class, Object...)}.
+     * The {@code Object} method references passed here are {@link LastInvocationAware}
+     * objects obtained from Spring HATEOAS with {@link WebMvcLinkBuilder#methodOn(Class, Object...)}.
      * The {@code listControllerMethod} * and {@code createControllerMethod} are optional, and will be checked via Spring Security to ensure
      * the current user can access them before links are returned as part of the schema. The {@code schemaMethod} will be
      * used as the ID of the schema itself.
@@ -88,12 +91,14 @@ public class ResourceSchemaCreator {
      *
      * @param resource - the resource to add on the spring context.
      */
-    public JsonSchema create(ResourceSupport resource,
-                            Object schemaMethod,
-                            Optional<Object> listControllerMethod,
-                            Optional<Object> createControllerMethod) {
-
-        JsonSchema jsonSchema = createFullSchema(resource.getClass(), resource);
+    @SuppressWarnings("unchecked")
+    public <T extends RepresentationModel<T>> JsonSchema create(
+            T resource,
+            Object schemaMethod,
+            Optional<Object> listControllerMethod,
+            Optional<Object> createControllerMethod
+    ) {
+        JsonSchema jsonSchema = createFullSchema((Class<T>)resource.getClass(), resource);
         decorateJsonSchema(jsonSchema, schemaMethod, listControllerMethod, createControllerMethod);
         return jsonSchema;
     }
@@ -107,7 +112,7 @@ public class ResourceSchemaCreator {
      * @param <T> the resource type to describe
      * @return a schema object describing the resource, which can be serializaed to JSON itself
      */
-    public <T extends Object> JsonSchema create(Class<T> resourceClass, URI schemaUri, Optional<Object> listControllerMethod, Optional<Object> createControllerMethod) {
+    public <T extends RepresentationModel<T>> JsonSchema create(Class<T> resourceClass, URI schemaUri, Optional<Object> listControllerMethod, Optional<Object> createControllerMethod) {
         JsonSchema jsonSchema = createFullSchema(resourceClass, null);
         decorateJsonSchema(jsonSchema, schemaUri, listControllerMethod, createControllerMethod);
 
@@ -130,7 +135,10 @@ public class ResourceSchemaCreator {
      * @param resourceClass - the resource class to make the schema from
      * @param resource - This will be set on the StandardEvaluationContext as 'currentInstance'
      */
-    private JsonSchema createFullSchema(Class resourceClass, ResourceSupport resource) {
+    private <T extends RepresentationModel<T>> JsonSchema createFullSchema(
+            Class<T> resourceClass,
+            T resource
+    ) {
         try {
             StandardEvaluationContext evaluationContext = new StandardEvaluationContext();
             if (resource != null) {
@@ -138,9 +146,7 @@ public class ResourceSchemaCreator {
             }
              Optional.ofNullable(SecurityContextHolder.getContext().getAuthentication())
                         .map(Authentication::getPrincipal)
-                        .ifPresent(currentUser -> {
-                            evaluationContext.setVariable("currentUser", currentUser);
-                        });
+                        .ifPresent(currentUser -> evaluationContext.setVariable("currentUser", currentUser));
 
             SchemaFactoryWrapper wrapper = new SuperSchemaFactoryWrapper(crossContextConversionService,
                                                                          enumSchemaCreator,
@@ -154,7 +160,7 @@ public class ResourceSchemaCreator {
     }
 
     private void decorateJsonSchema(JsonSchema jsonSchema, Object schemaMethod, Optional<Object> listControllerMethod, Optional<Object> createControllerMethod) {
-        jsonSchema.setId(ControllerLinkBuilder.linkTo(schemaMethod).toString());
+        jsonSchema.setId(WebMvcLinkBuilder.linkTo(schemaMethod).toString());
         decorateJsonSchema(jsonSchema, listControllerMethod, createControllerMethod);
     }
 
@@ -192,13 +198,12 @@ public class ResourceSchemaCreator {
         }
     }
 
-    Optional<ControllerLinkBuilder> linkIfPermittedTo(Object invocationValue) {
-        Assert.isInstanceOf(DummyInvocationUtils.LastInvocationAware.class, invocationValue);
-        DummyInvocationUtils.LastInvocationAware invocations = (DummyInvocationUtils.LastInvocationAware) invocationValue;
+    Optional<WebMvcLinkBuilder> linkIfPermittedTo(Object invocationValue) {
+        LastInvocationAware invocations = DummyInvocationUtils.getLastInvocationAware(invocationValue);
 
-        DummyInvocationUtils.MethodInvocation invocation = invocations.getLastInvocation();
+        MethodInvocation invocation = invocations.getLastInvocation();
         if (securityChecker.check(invocation)) {
-            return Optional.of(ControllerLinkBuilder.linkTo(invocationValue));
+            return Optional.of(WebMvcLinkBuilder.linkTo(invocationValue));
         } else {
             return Optional.empty();
         }

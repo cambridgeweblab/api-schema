@@ -43,7 +43,7 @@ public class FormDelegate {
     }
 
     public FormResource create(FormResource resource) {
-        String stringValue = null;
+        String stringValue;
         try {
             stringValue = objectMapper.writeValueAsString(resource.getFormDefinition());
         } catch (JsonProcessingException ex) {
@@ -66,18 +66,15 @@ public class FormDelegate {
 
         FormEntity saved = formRepository.save(formEntity);
 
-        FormResource returned = toResource(saved);
-
-        return returned;
+        return toResource(saved);
 
     }
 
     public FormResource get(String id) {
 
         FormEntity formEntity = formRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(id));
-        FormResource resource = toResource(formEntity);
 
-        return resource;
+        return toResource(formEntity);
     }
 
     public void delete(String id) {
@@ -89,9 +86,8 @@ public class FormDelegate {
 
     public List<FormResource> list(String businessStream, String applicationName) {
         List<? extends FormEntity> entities = formRepository.findByBusinessStreamsContainingAndApplicationName(businessStream, applicationName);
-        List<FormResource> result = entities.stream().map(formAssembler::toResource).collect(toList());
 
-        return result;
+        return entities.stream().map(formAssembler::toModel).collect(toList());
     }
 
     public FormResource update(FormResource resource) {
@@ -115,13 +111,12 @@ public class FormDelegate {
         existingEntity.setValidTo(resource.getValidTo());
 
         FormEntity saved = formRepository.save(existingEntity);
-        FormResource savedResource = toResource(saved);
 
-        return savedResource;
+        return toResource(saved);
     }
 
 
     private FormResource toResource(FormEntity entity) {
-        return formAssembler.toResource(entity);
+        return formAssembler.toModel(entity);
     }
 }

@@ -8,7 +8,7 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.core.MethodParameter;
 import org.springframework.core.convert.ConversionService;
-import org.springframework.hateoas.ResourceSupport;
+import org.springframework.hateoas.RepresentationModel;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.util.LinkedMultiValueMap;
@@ -148,14 +148,14 @@ public class ControllerIntrospectingCrossContextConverter implements CrossContex
         for (int i = 0; i < parameters.length; i++) {
             MethodParameter parameter = parameters[i];
             if (parameter.getParameterAnnotation(PathVariable.class) == null) {
-                if (parameter.getParameterAnnotation(RequestBody.class) != null && ResourceSupport.class.isAssignableFrom(parameter.getParameterType())) {
+                if (parameter.getParameterAnnotation(RequestBody.class) != null && RepresentationModel.class.isAssignableFrom(parameter.getParameterType())) {
                     logger.debug("Skipping @RequestBody parameter " + i + " ");
                 } else if (parameter.getParameterAnnotation(org.springframework.security.web.bind.annotation.AuthenticationPrincipal.class) != null //Keep for backward compatibility
                         || parameter.getParameterAnnotation(AuthenticationPrincipal.class) != null
                         || Principal.class.isAssignableFrom(parameter.getParameterType())
                         || Authentication.class.isAssignableFrom(parameter.getParameterType())) {
                     logger.debug("Skipping security parameter " + i + " [" + parameter + "]");
-                } else if (parameter.getParameterAnnotation(RequestBody.class) == null || !ResourceSupport.class.isAssignableFrom(parameter.getParameterType())) {
+                } else if (parameter.getParameterAnnotation(RequestBody.class) == null || !RepresentationModel.class.isAssignableFrom(parameter.getParameterType())) {
                     logger.error("Controller method " + method.toString() + " parameter " + i + " [" + parameter + "] is not a @PathVariable or a @RequestBody ResourceSupport");
                     return null;
                 }

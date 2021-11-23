@@ -6,7 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Arrays;
 
-import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
 
 public class SchemaCreatingController<C extends SchemaCreatingController<C>> {
     ResourceSchemaCreator schemaCreator;

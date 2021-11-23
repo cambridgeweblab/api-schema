@@ -1,8 +1,9 @@
 package ucles.weblab.common.schema.webapi;
 
 import com.fasterxml.jackson.module.jsonSchema.JsonSchema;
+import org.springframework.hateoas.RepresentationModel;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.web.bind.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import ucles.weblab.common.identity.domain.Belongs;
 import ucles.weblab.common.webapi.resource.ResourceListWrapper;
 
@@ -16,10 +17,11 @@ import java.util.Optional;
  * @param <R> type of resource managed by the controller
  * @since 07/10/15
  */
-public abstract class SelfDescribingController<C extends SelfDescribingController<C, R>, R>
+public abstract class SelfDescribingController<C extends SelfDescribingController<C, R>, R extends RepresentationModel<R>>
         extends SchemaProvidingController<C> {
 
     private final Class<R> resourceClass;
+
     public SelfDescribingController() {
         this.resourceClass = (Class) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[1];
     }
@@ -29,7 +31,7 @@ public abstract class SelfDescribingController<C extends SelfDescribingControlle
         final Optional<String> ownerHandle = Optional.ofNullable(principal).map(Belongs::getOwnerHandle);
 
         // The ResourceSchemaCreator will only add these methods if you're permitted to access them, so we can pass them
-        JsonSchema schema = schemaCreator.create(resourceClass,
+        JsonSchema schema = getSchemaCreator().create(resourceClass,
                 self().describe(principal),
                 ownerHandle.map(centreNumber -> self().list(centreNumber)),
                 ownerHandle.map(centreNumber -> self().create(centreNumber, null)));

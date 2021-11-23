@@ -8,8 +8,8 @@ import com.fasterxml.jackson.databind.ser.DefaultSerializerProvider;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.module.jsonSchema.factories.SchemaFactoryWrapper;
 import com.fasterxml.jackson.module.jsonSchema.types.ObjectSchema;
-import org.springframework.hateoas.core.DummyInvocationUtils;
-import org.springframework.hateoas.mvc.ControllerLinkBuilder;
+import org.springframework.hateoas.server.core.DummyInvocationUtils;
+import org.springframework.hateoas.server.core.LastInvocationAware;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -23,7 +23,7 @@ import java.lang.reflect.Proxy;
 import java.util.function.BiFunction;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 
-import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static ucles.weblab.common.webapi.HateoasUtils.toUriString;
 
 /**
@@ -53,7 +53,7 @@ public class ControllerMethodSchemaCreator {
      * {@link JsonSchema @JsonSchema} and {@link JsonSchemaMetadata @JsonSchemaMetadata} to enrich the content of this schema
      * object, otherwise it will simply be parameter names and types.
      * <p>
-     *     The {@code Object} method reference passed here is a {@link org.springframework.hateoas.core.DummyInvocationUtils.LastInvocationAware}
+     *     The {@code Object} method reference passed here is a {@link LastInvocationAware}
      *     object obtained from Spring HATEOAS with {@link ControllerLinkBuilder#methodOn(Class, Object...)}. The
      *     {@code controllerMethod} will be used as the ID of the schema itself.
      * </p>
@@ -64,9 +64,9 @@ public class ControllerMethodSchemaCreator {
      * @return a schema describing the request parameters, which can be serialized to JSON itself.
      */
     public com.fasterxml.jackson.module.jsonSchema.JsonSchema createForRequestParams(Object controllerMethod) {
-        Assert.isInstanceOf(DummyInvocationUtils.LastInvocationAware.class, controllerMethod);
+        Assert.isInstanceOf(LastInvocationAware.class, controllerMethod);
         StandardEvaluationContext evalContext = new StandardEvaluationContext();
-        Parameter[] parameters = ((DummyInvocationUtils.LastInvocationAware) controllerMethod).getLastInvocation().getMethod().getParameters();
+        Parameter[] parameters = DummyInvocationUtils.getLastInvocationAware(controllerMethod).getLastInvocation().getMethod().getParameters();
         SerializationConfig serializationConfig = objectMapper.getSerializationConfig();
         DefaultSerializerProvider.Impl serializerProvider = ((DefaultSerializerProvider.Impl) objectMapper.getSerializerProvider()).createInstance(serializationConfig, objectMapper.getSerializerFactory());
         // Create a base object schema

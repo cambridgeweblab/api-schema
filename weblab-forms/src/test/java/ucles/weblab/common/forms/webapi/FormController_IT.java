@@ -45,7 +45,7 @@ import ucles.weblab.common.schema.webapi.ControllerMethodSchemaCreator;
 import ucles.weblab.common.schema.webapi.EnumSchemaCreator;
 import ucles.weblab.common.schema.webapi.ResourceSchemaCreator;
 import ucles.weblab.common.security.SecurityChecker;
-import ucles.weblab.common.test.webapi.AbstractRestController_IT;
+import ucles.weblab.common.test.webapi.AbstractRestControllerIT;
 import ucles.weblab.common.xc.service.CrossContextConversionService;
 import ucles.weblab.common.xc.service.CrossContextConversionServiceImpl;
 import ucles.weblab.common.xc.service.CrossContextConverter;
@@ -68,7 +68,7 @@ import static ucles.weblab.common.schema.webapi.SchemaMediaTypes.APPLICATION_SCH
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(value = "classpath:/public", webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 //@Transactional
-public class FormController_IT extends AbstractRestController_IT {
+public class FormController_IT extends AbstractRestControllerIT {
 
     private static final Logger log = LoggerFactory.getLogger(FormController_IT.class);
 

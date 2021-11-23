@@ -25,7 +25,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 /**
  * @since 22/01/2016
@@ -87,22 +87,22 @@ public class ControllerMethodSchemaCreatorTest {
     @RequestMapping("/cars")
     public static class CarController {
         @RequestMapping("/saloon")
-        Object configureCar(@RequestParam("color") @JsonSchemaMetadata(title = "Paint colour", defaultValue = "Silver") String color) {
+        CharSequence configureCar(@RequestParam("color") @JsonSchemaMetadata(title = "Paint colour", defaultValue = "Silver") String color) {
             return color;
         }
 
         @RequestMapping("/ford")
-        Object configureModelTForUser(Principal principal) {
+        CharSequence configureModelTForUser(Principal principal) {
             return "black";
         }
 
         @RequestMapping("/kit")
-        Object configureKitCar(@RequestParam(name = "seats", required = false) String seatMaterial, @RequestParam(name = "wheels", defaultValue = "steel") String wheelType) {
+        CharSequence configureKitCar(@RequestParam(name = "seats", required = false) String seatMaterial, @RequestParam(name = "wheels", defaultValue = "steel") String wheelType) {
             return (StringUtils.isEmpty(seatMaterial)? "(no seats)" : seatMaterial) + "," + wheelType;
         }
 
         @RequestMapping("/radio")
-        Object configureCarRadio(@RequestParam(name = "type") RadioType radio) {
+        CharSequence configureCarRadio(@RequestParam(name = "type") RadioType radio) {
             return radio.toString();
         }
 

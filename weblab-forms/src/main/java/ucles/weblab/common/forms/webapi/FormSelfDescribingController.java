@@ -14,7 +14,7 @@ import ucles.weblab.common.webapi.HateoasUtils;
 import ucles.weblab.common.webapi.LinkRelation;
 import ucles.weblab.common.webapi.resource.ResourceListWrapper;
 
-import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 
 /**
  *
@@ -25,7 +25,7 @@ public abstract class FormSelfDescribingController<C extends FormSelfDescribingC
 
     private final Class<R> resourceClass;
     private final ControllerMethodSchemaCreator controllerMethodSchemaCreator;
-    
+
     public FormSelfDescribingController(ControllerMethodSchemaCreator controllerMethodSchemaCreator) {
         this.resourceClass = (Class) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[1];
         this.controllerMethodSchemaCreator = controllerMethodSchemaCreator;
@@ -38,7 +38,7 @@ public abstract class FormSelfDescribingController<C extends FormSelfDescribingC
 
     public ResponseEntity<JsonSchema> describe(@AuthenticationPrincipal Belongs principal, String businessName, String applicationName) {
         // The ResourceSchemaCreator will only add these methods if you're permitted to access them, so we can pass them
-        
+
         Object controllerListMethod = self().list(null, null);
         JsonSchema instancesSchema = controllerMethodSchemaCreator.createForRequestParams(controllerListMethod);
 
@@ -47,17 +47,17 @@ public abstract class FormSelfDescribingController<C extends FormSelfDescribingC
                 .setMethod(RequestMethod.GET.toString())
                 .setHref(HateoasUtils.toUriString(linkTo(controllerListMethod), false))
                 .setSchema(instancesSchema);
-        
+
         JsonSchema schema = getSchemaCreator().create(resourceClass,
                 self().describe(principal),
                 Optional.of(instancesLink),
                 Optional.of(self().create(null)));
-        
+
         return ResponseEntity.ok(schema);
     }
 
     abstract public ResourceListWrapper<R> list(String businessName, String applicationName);
     abstract public ResponseEntity<R> create(R data);
 
-    
+
 }
